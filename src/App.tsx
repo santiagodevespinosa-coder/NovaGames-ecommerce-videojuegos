@@ -1,122 +1,174 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+// src/App.tsx
+import { useState } from 'react';
+import { CatalogoJuegos } from './components/juegos/CatalogoJuego';
+import logoNova from './assets/logo_nova_games.webp';
+import { BibliotecaJuegos } from './components/juegos/BibliotecaJuegos';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [seccionActiva, setSeccionActiva] = useState<'store' | 'library' | 'community'>('store');
+  const [terminoBusqueda, setTerminoBusqueda] = useState<string>('');
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div style={{ 
+      display: 'flex', 
+      minHeight: '100vh', 
+      backgroundColor: '#0F172A', 
+      color: '#F8FAFC', 
+      fontFamily: "'Nunito', system-ui, sans-serif" 
+    }}>
+      
+      {/* 🧭 1. BARRA LATERAL */}
+      <aside style={{ 
+        width: '260px', 
+        backgroundColor: '#0B101D', 
+        borderRight: '1px solid #1E293B',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '32px 20px',
+        position: 'sticky',
+        top: 0,
+        height: '100vh',
+        boxSizing: 'border-box'
+      }}>
+        {/* Logo */}
+        <div style={{ marginBottom: '48px', display: 'flex', justifyContent: 'center' }}>
+          <img 
+            src={logoNova} 
+            alt="Nova Games Logo" 
+            style={{ 
+              width: '100%', 
+              maxWidth: '180px', 
+              height: 'auto',
+              objectFit: 'contain'
+            }} 
+          />
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
 
-      <div className="ticks"></div>
+        {/* Menú lateral en español */}
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div 
+            onClick={() => setSeccionActiva('store')}
+            style={{ 
+              padding: '10px 16px', 
+              backgroundColor: seccionActiva === 'store' ? '#1E293B' : 'transparent', 
+              borderRadius: '8px', 
+              color: seccionActiva === 'store' ? '#F8FAFC' : '#94A3B8', 
+              fontWeight: seccionActiva === 'store' ? '700' : '600', 
+              fontSize: '15px', 
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Tienda
+          </div>
+          
+          <div 
+            onClick={() => setSeccionActiva('library')}
+            style={{ 
+              padding: '10px 16px', 
+              backgroundColor: seccionActiva === 'library' ? '#1E293B' : 'transparent', 
+              borderRadius: '8px', 
+              color: seccionActiva === 'library' ? '#F8FAFC' : '#94A3B8', 
+              fontWeight: seccionActiva === 'library' ? '700' : '600', 
+              fontSize: '15px', 
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Biblioteca
+          </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          <div 
+            onClick={() => setSeccionActiva('community')}
+            style={{ 
+              padding: '10px 16px', 
+              backgroundColor: seccionActiva === 'community' ? '#1E293B' : 'transparent', 
+              borderRadius: '8px', 
+              color: seccionActiva === 'community' ? '#F8FAFC' : '#94A3B8', 
+              fontWeight: seccionActiva === 'community' ? '700' : '600', 
+              fontSize: '15px', 
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Comunidad
+          </div>
+        </nav>
+      </aside>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* 🖥️ 2. CONTENIDO PRINCIPAL A LA DERECHA */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        
+        {/* Navbar superior */}
+        <header style={{ 
+          height: '75px', 
+          borderBottom: '1px solid #1E293B', 
+          backgroundColor: '#0B101D',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 40px',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+            <div style={{ 
+              backgroundColor: '#1E293B', 
+              borderRadius: '20px', 
+              padding: '8px 16px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '10px',
+              width: '260px',
+              border: '1px solid #334155'
+            }}>
+              <span style={{ color: '#94A3B8', fontSize: '14px' }}>🔍</span>
+              <input 
+                type="text" 
+                placeholder="Search store..." 
+                value={terminoBusqueda}
+                onChange={(e) => setTerminoBusqueda(e.target.value)}
+                style={{ 
+                  background: 'transparent', 
+                  border: 'none', 
+                  color: '#F8FAFC', 
+                  outline: 'none', 
+                  fontSize: '14px',
+                  width: '100%',
+                  fontFamily: 'inherit'
+                }} 
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '20px', fontSize: '14px', color: '#94A3B8', fontWeight: '600' }}>
+              <span style={{ color: '#F8FAFC', cursor: 'pointer' }}>Discover</span>
+              <span style={{ cursor: 'pointer' }}>Browse</span>
+              <span style={{ cursor: 'pointer' }}>News</span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ width: '36px', height: '36px', backgroundColor: '#10B981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '14px', color: '#FFF' }}>
+              S
+            </div>
+          </div>
+        </header>
+
+        {/* Cuerpo dinámico */}
+        <main style={{ padding: '40px', maxWidth: '1200px', width: '100%', boxSizing: 'border-box' }}>
+          {seccionActiva === 'store' && <CatalogoJuegos filtroBusqueda={terminoBusqueda} />}
+          {seccionActiva === 'library' && <BibliotecaJuegos />} {/* 👈 Lo integramos aquí */}
+          {seccionActiva === 'community' && (
+            <div style={{ color: '#94A3B8', fontSize: '18px', textAlign: 'center', marginTop: '60px' }}>
+              Sección de comunidad próximamente.
+            </div>
+          )}
+        </main>
+
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
