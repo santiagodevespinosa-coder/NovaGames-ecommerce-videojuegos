@@ -5,12 +5,21 @@ import type { Juego } from '../../types';
 
 interface VistaDetalleJuegoProps {
   juegos: Juego[];
+  usuarioLogueado: string | null;          
+  onAbrirLogin: () => void;                
+  onComprarJuego: (juegoComprado: Juego) => void; 
+  juegosEnBiblioteca: number[];            
 }
 
-export const VistaDetalleJuego: React.FC<VistaDetalleJuegoProps> = ({ juegos }) => {
+export const VistaDetalleJuego: React.FC<VistaDetalleJuegoProps> = ({ 
+  juegos, 
+  usuarioLogueado, 
+  onAbrirLogin, 
+  onComprarJuego,
+  juegosEnBiblioteca 
+}) => {
   const { id } = useParams<{ id: string }>();
   
-  // Buscamos el juego que coincida con el ID de la URL
   const juegoEncontrado = juegos.find(j => j.id === Number(id));
 
   if (!juegoEncontrado) {
@@ -25,6 +34,23 @@ export const VistaDetalleJuego: React.FC<VistaDetalleJuegoProps> = ({ juegos }) 
     );
   }
 
+  const yaEnBiblioteca = juegosEnBiblioteca.includes(juegoEncontrado.id);
+
+  const manejarCompra = () => {
+    if (!usuarioLogueado) {
+      onAbrirLogin();
+      return;
+    }
+
+    if (yaEnBiblioteca) {
+      alert(`Ya tienes el juego ${juegoEncontrado.titulo} en tu biblioteca.`);
+      return;
+    }
+
+    onComprarJuego(juegoEncontrado);
+    alert(`¡Compra exitosa! ${juegoEncontrado.titulo} se ha añadido a tu Biblioteca.`);
+  };
+
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', color: '#F8FAFC' }}>
       <Link to="/" style={{ color: '#38BDF8', textDecoration: 'none', fontSize: '14px', fontWeight: '600', display: 'inline-block', marginBottom: '24px' }}>
@@ -38,12 +64,10 @@ export const VistaDetalleJuego: React.FC<VistaDetalleJuegoProps> = ({ juegos }) 
         overflow: 'hidden',
         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)'
       }}>
-        {/* Banner o Imagen */}
         <div style={{ height: '280px', backgroundColor: '#0F172A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', fontSize: '18px', borderBottom: '1px solid #334155' }}>
           <span>🎮 [Banner de {juegoEncontrado.titulo}]</span>
         </div>
 
-        {/* Información Detallada */}
         <div style={{ padding: '32px' }}>
           <h1 style={{ margin: '0 0 16px 0', fontSize: '32px', fontWeight: '700', color: '#F8FAFC' }}>
             {juegoEncontrado.titulo}
@@ -62,20 +86,20 @@ export const VistaDetalleJuego: React.FC<VistaDetalleJuegoProps> = ({ juegos }) 
             </div>
 
             <button 
-              onClick={() => alert(`¡Has comprado ${juegoEncontrado.titulo} con éxito!`)}
+              onClick={manejarCompra}
               style={{
-                backgroundColor: '#10B981',
+                backgroundColor: yaEnBiblioteca ? '#334155' : '#10B981',
                 color: '#FFF',
                 border: 'none',
                 padding: '12px 28px',
                 borderRadius: '8px',
                 fontWeight: '700',
                 fontSize: '16px',
-                cursor: 'pointer',
+                cursor: yaEnBiblioteca ? 'default' : 'pointer',
                 transition: 'background-color 0.2s ease'
               }}
             >
-              Comprar Ahora
+              {yaEnBiblioteca ? 'En tu Biblioteca' : usuarioLogueado ? 'Comprar Ahora' : 'Inicia sesión para comprar'}
             </button>
           </div>
         </div>
