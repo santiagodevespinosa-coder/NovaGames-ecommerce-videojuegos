@@ -5,7 +5,7 @@ import type { Juego } from '../../types';
 import { CartaJuego } from './CartaJuego';
 
 interface CatalogoJuegosProps {
-  filtroBusqueda: string; // 🔍 Recibe lo que el usuario escribe en el header
+  filtroBusqueda: string; 
 }
 
 export const CatalogoJuegos: React.FC<CatalogoJuegosProps> = ({ filtroBusqueda }) => {
@@ -16,7 +16,7 @@ export const CatalogoJuegos: React.FC<CatalogoJuegosProps> = ({ filtroBusqueda }
     { id: 3, titulo: 'The Witcher 3: Wild Hunt', descripcion: 'Juego de rol de fantasía basado en la historia.', precio: 39.99, stock: 8, categoriaId: 1, desarrolladorId: 3 },
   ]);
   const [cargando, setCargando] = useState<boolean>(false); 
-  const [error, setError] = useState<string | null>(null); // 👈 Declaración del estado de error que faltaba
+  const [error, setError] = useState<string | null>(null); 
 
   useEffect(() => {
     juegosService.obtenerJuegos()

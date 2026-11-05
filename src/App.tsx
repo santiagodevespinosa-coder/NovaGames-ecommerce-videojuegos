@@ -2,50 +2,79 @@
 import React, { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { CatalogoJuegos } from './components/juegos/CatalogoJuego';
-import { BibliotecaJuegos } from './components/juegos/BibliotecaJuegos';
+import { BibliotecaJuegos, type JuegoBiblioteca } from './components/juegos/BibliotecaJuegos';
 import { VistaDetalleJuego } from './components/juegos/VistaDetalleJuego';
 import { PanelLogin } from './components/auth/PanelLogin';
-import logoNovaGames from './assets/logo_nova_games.webp'; 
+import logoNovaGames from './assets/logo.png';
 import type { Juego } from './types';
 
 export function App() {
   const [seccionActiva, setSeccionActiva] = useState<'store' | 'library'>('store');
   const [terminoBusqueda, setTerminoBusqueda] = useState<string>('');
   
-  // 🔐 Estados de Autenticación
-  const [usuarioLogueado, setUsuarioLogueado] = useState<string | null>(null);
+  // 🔐 Estados de Autenticación con persistencia en localStorage
+  const [usuarioLogueado, setUsuarioLogueado] = useState<string | null>(() => {
+    return localStorage.getItem('nova_usuario_logueado');
+  });
   const [mostrarModalLogin, setMostrarModalLogin] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
-  // Mock data temporal de juegos
-  const [juegos] = useState<Juego[]>([
+  // Mock data de tienda con stock real
+  const [juegos, setJuegos] = useState<Juego[]>([
     { id: 1, titulo: 'Cyberpunk 2077', descripcion: 'Un RPG de acción y aventura en mundo abierto ambientado en Night City.', precio: 59.99, stock: 15, categoriaId: 1, desarrolladorId: 1 },
     { id: 2, titulo: 'Minecraft', descripcion: 'Explora mundos infinitos y construye de todo, desde la casa más simple hasta el castillo más grandioso.', precio: 29.99, stock: 30, categoriaId: 2, desarrolladorId: 2 },
     { id: 3, titulo: 'The Witcher 3: Wild Hunt', descripcion: 'Juego de rol de fantasía de mundo abierto basado en una historia y centrado en las opciones.', precio: 39.99, stock: 8, categoriaId: 1, desarrolladorId: 3 },
   ]);
 
+  // 📚 Estado de la Biblioteca del usuario
+  const [biblioteca, setBiblioteca] = useState<JuegoBiblioteca[]>([
+    { id: 1, titulo: 'Cyberpunk 2077', horasJugadas: 12.5, instalado: true }
+  ]);
+
+  // 🛒 Función de compra: descuenta stock y añade a la biblioteca
+  const handleComprarJuego = (juegoComprado: Juego) => {
+    setJuegos(prev =>
+      prev.map(j => j.id === juegoComprado.id ? { ...j, stock: j.stock - 1 } : j)
+    );
+
+    const yaExiste = biblioteca.some(j => j.id === juegoComprado.id);
+    if (!yaExiste) {
+      setBiblioteca(prev => [
+        ...prev,
+        { id: juegoComprado.id, titulo: juegoComprado.titulo, horasJugadas: 0, instalado: false }
+      ]);
+    }
+  };
+
+  // 🚪 Función de Cierre de Sesión (Logout)
+  const handleCerrarSesion = () => {
+    localStorage.removeItem('nova_usuario_logueado');
+    setUsuarioLogueado(null);
+  };
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#0B101D', color: '#F8FAFC', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-principal)', color: 'var(--texto-principal)', fontFamily: 'system-ui, sans-serif' }}>
       
       {/* 🧭 Menú Lateral Izquierdo */}
-      <aside style={{ width: '240px', backgroundColor: '#0F172A', borderRight: '1px solid #334155', display: 'flex', flexDirection: 'column', padding: '24px 16px', boxSizing: 'border-box' }}>
+      <aside style={{ width: '240px', backgroundColor: 'var(--bg-superficie)', borderRight: '1px solid var(--borde-color)', display: 'flex', flexDirection: 'column', padding: '24px 16px', boxSizing: 'border-box' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px', paddingLeft: '8px' }}>
           <img 
             src={logoNovaGames} 
             alt="Nova Games Logo" 
-            style={{ width: '200px', height: '200px', objectFit: 'contain' }} 
+            style={{ width: '38px', height: '38px', objectFit: 'contain' }} 
           />
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: 'var(--texto-principal)', letterSpacing: '0.5px' }}>NOVA GAMES</h2>
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <button 
             onClick={() => { setSeccionActiva('store'); navigate('/'); }}
             style={{
-              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '12px 16px', borderRadius: '8px', border: 'none',
-              backgroundColor: seccionActiva === 'store' ? '#1E293B' : 'transparent',
-              color: seccionActiva === 'store' ? '#38BDF8' : '#94A3B8',
-              fontWeight: '600', fontSize: '14px', cursor: 'pointer', textAlign: 'left'
+              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '12px 16px', borderRadius: 'var(--radio-sm)', border: 'none',
+              backgroundColor: seccionActiva === 'store' ? 'var(--bg-tarjeta)' : 'transparent',
+              color: seccionActiva === 'store' ? 'var(--color-primario)' : 'var(--texto-secundario)',
+              fontWeight: '600', fontSize: '14px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease'
             }}
           >
             🏪 Tienda
@@ -54,10 +83,10 @@ export function App() {
           <button 
             onClick={() => { setSeccionActiva('library'); navigate('/'); }}
             style={{
-              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '12px 16px', borderRadius: '8px', border: 'none',
-              backgroundColor: seccionActiva === 'library' ? '#1E293B' : 'transparent',
-              color: seccionActiva === 'library' ? '#38BDF8' : '#94A3B8',
-              fontWeight: '600', fontSize: '14px', cursor: 'pointer', textAlign: 'left'
+              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '12px 16px', borderRadius: 'var(--radio-sm)', border: 'none',
+              backgroundColor: seccionActiva === 'library' ? 'var(--bg-tarjeta)' : 'transparent',
+              color: seccionActiva === 'library' ? 'var(--color-primario)' : 'var(--texto-secundario)',
+              fontWeight: '600', fontSize: '14px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease'
             }}
           >
             📚 Biblioteca
@@ -68,8 +97,8 @@ export function App() {
       {/* 🚀 Contenido Principal */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         
-        {/* Header Superior con Buscador y Usuario */}
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 32px', backgroundColor: '#0B101D', borderBottom: '1px solid #334155' }}>
+        {/* Header Superior con Buscador y Usuario + Botón Logout */}
+        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 32px', backgroundColor: 'var(--bg-principal)', borderBottom: '1px solid var(--borde-color)' }}>
           <div style={{ width: '300px' }}>
             <input 
               type="text" 
@@ -77,31 +106,52 @@ export function App() {
               value={terminoBusqueda}
               onChange={(e) => setTerminoBusqueda(e.target.value)}
               style={{
-                width: '100%', padding: '10px 16px', backgroundColor: '#1E293B', border: '1px solid #334155',
-                borderRadius: '20px', color: '#F8FAFC', fontSize: '13px', outline: 'none', boxSizing: 'border-box'
+                width: '100%', padding: '10px 16px', backgroundColor: 'var(--bg-tarjeta)', border: '1px solid var(--borde-color)',
+                borderRadius: 'var(--radio-pill)', color: 'var(--texto-principal)', fontSize: '13px', outline: 'none', boxSizing: 'border-box'
               }}
             />
           </div>
 
-          {/* 👤 Control de Autenticación en la esquina superior derecha */}
-          <div>
+          {/* 👤 Control de Autenticación y Logout */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {usuarioLogueado ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ color: '#F8FAFC', fontSize: '14px', fontWeight: '600' }}>{usuarioLogueado}</span>
-                <div style={{
-                  width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#10B981',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0F172A', fontWeight: '700', fontSize: '14px'
-                }}>
-                  {usuarioLogueado.charAt(0).toUpperCase()}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ color: 'var(--texto-principal)', fontSize: '14px', fontWeight: '600' }}>{usuarioLogueado}</span>
+                  <div style={{
+                    width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--color-exito)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#070B14', fontWeight: '700', fontSize: '14px'
+                  }}>
+                    {usuarioLogueado.charAt(0).toUpperCase()}
+                  </div>
                 </div>
+                <button 
+                  onClick={handleCerrarSesion}
+                  style={{
+                    backgroundColor: 'transparent', color: 'var(--color-peligro)', border: '1px solid var(--color-peligro)', padding: '6px 12px',
+                    borderRadius: 'var(--radio-pill)', fontWeight: '600', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s ease'
+                  }}
+                >
+                  Cerrar Sesión
+                </button>
               </div>
             ) : (
               <button 
                 onClick={() => setMostrarModalLogin(true)}
                 style={{
-                  backgroundColor: '#10B981', color: '#FFF', border: 'none', padding: '8px 16px',
-                  borderRadius: '20px', fontWeight: '700', fontSize: '13px', cursor: 'pointer'
+                  backgroundColor: 'var(--color-exito)',
+                  color: '#FFF',
+                  border: 'none',
+                  padding: '10px 22px',
+                  borderRadius: 'var(--radio-pill)',
+                  fontWeight: '800',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  boxShadow: 'var(--sombra-boton)',
+                  transition: 'transform 0.2s ease, opacity 0.2s ease'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
               >
                 Registrarse / Iniciar Sesión
               </button>
@@ -115,10 +165,18 @@ export function App() {
             <Route path="/" element={
               <>
                 {seccionActiva === 'store' && <CatalogoJuegos filtroBusqueda={terminoBusqueda} />}
-                {seccionActiva === 'library' && <BibliotecaJuegos />}
+                {seccionActiva === 'library' && <BibliotecaJuegos juegosBiblioteca={biblioteca} setJuegosBiblioteca={setBiblioteca} />}
               </>
             } />
-            <Route path="/juego/:id" element={<VistaDetalleJuego juegos={juegos} />} />
+            <Route path="/juego/:id" element={
+              <VistaDetalleJuego 
+                juegos={juegos} 
+                usuarioLogueado={usuarioLogueado}
+                onAbrirLogin={() => setMostrarModalLogin(true)}
+                onComprarJuego={handleComprarJuego}
+                juegosEnBiblioteca={biblioteca.map(j => j.id)}
+              />
+            } />
           </Routes>
         </main>
       </div>
@@ -127,6 +185,7 @@ export function App() {
       {mostrarModalLogin && (
         <PanelLogin 
           onLoginExitoso={(nombre) => {
+            localStorage.setItem('nova_usuario_logueado', nombre);
             setUsuarioLogueado(nombre);
             setMostrarModalLogin(false);
           }}
