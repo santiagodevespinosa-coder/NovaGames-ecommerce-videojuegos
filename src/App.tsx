@@ -5,7 +5,7 @@ import { CatalogoJuegos } from './components/juegos/CatalogoJuego';
 import { BibliotecaJuegos, type JuegoBiblioteca } from './components/juegos/BibliotecaJuegos';
 import { VistaDetalleJuego } from './components/juegos/VistaDetalleJuego';
 import { PanelLogin } from './components/auth/PanelLogin';
-import logoNovaGames from './assets/logo.png';
+import logoNovaGames from './assets/logo_nova_games.webp';
 import type { Juego } from './types';
 
 export function App() {
@@ -62,9 +62,8 @@ export function App() {
           <img 
             src={logoNovaGames} 
             alt="Nova Games Logo" 
-            style={{ width: '38px', height: '38px', objectFit: 'contain' }} 
+            style={{ width: '200px', height: '200px', objectFit: 'contain' }} 
           />
-          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: 'var(--texto-principal)', letterSpacing: '0.5px' }}>NOVA GAMES</h2>
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

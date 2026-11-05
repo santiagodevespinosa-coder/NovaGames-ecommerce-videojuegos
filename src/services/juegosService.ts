@@ -2,7 +2,7 @@
 import type { CrearJuegoDto, Juego } from '../types';
 
 // TODO: Hay que cambiar el puerto por el que use Agus
-const API_URL = 'https://localhost:5001/api';
+const API_URL = 'http://localhost:5292/api';
 
 export const juegosService = {
   // Obtener todos los juegos (para el catálogo)

@@ -14,75 +14,83 @@ export const CartaJuego: React.FC<CartaJuegoProps> = ({ juego }) => {
     <div 
       onClick={() => navigate(`/juego/${juego.id}`)}
       style={{
-        backgroundColor: 'var(--bg-tarjeta)',
-        border: '1px solid var(--borde-color)',
-        borderRadius: 'var(--radio-lg)',
+        backgroundColor: 'var(--bg-tarjeta, #151F33)',
+        border: '1px solid var(--borde-color, #23324A)',
+        borderRadius: '14px',
         overflow: 'hidden',
         cursor: 'pointer',
-        boxShadow: 'var(--sombra-card)',
-        transition: 'all 0.3s ease',
+        boxShadow: '0 10px 20px -5px rgba(0, 0, 0, 0.5)',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between'
+        height: '340px',
+        position: 'relative'
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-6px)';
-        e.currentTarget.style.borderColor = 'var(--color-primario)';
-        e.currentTarget.style.boxShadow = 'var(--sombra-card-hover)';
+        e.currentTarget.style.borderColor = 'var(--color-primario, #38BDF8)';
+        e.currentTarget.style.boxShadow = '0 20px 30px -10px rgba(56, 189, 248, 0.3)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.borderColor = 'var(--borde-color)';
-        e.currentTarget.style.boxShadow = 'var(--sombra-card)';
+        e.currentTarget.style.borderColor = 'var(--borde-color, #23324A)';
+        e.currentTarget.style.boxShadow = '0 10px 20px -5px rgba(0, 0, 0, 0.5)';
       }}
     >
-      {/* Contenedor grande para la Imagen / Banner */}
-      <div style={{ height: '200px', backgroundColor: 'var(--bg-superficie)', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--texto-mutado)' }}>
-        <span>🎮 [Imagen de {juego.titulo}]</span>
-        {/* Badge de Stock */}
+      {/* 🖼️ Imagen / Póster principal */}
+      <div style={{ 
+        flex: 1, 
+        backgroundColor: '#070B14', 
+        position: 'relative', 
+        overflow: 'hidden'
+      }}>
+        {juego.imagenUrl ? (
+          <img 
+            src={juego.imagenUrl} 
+            alt={juego.titulo} 
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }}
+          />
+        ) : (
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+            🎮 {juego.titulo}
+          </div>
+        )}
+
+        {/* Badge de Stock flotante */}
         <span style={{
           position: 'absolute',
           top: '12px',
           right: '12px',
-          backgroundColor: 'rgba(15, 23, 42, 0.85)',
-          color: 'var(--texto-principal)',
+          backgroundColor: 'rgba(7, 11, 20, 0.85)',
+          color: '#F8FAFC',
           padding: '4px 10px',
-          borderRadius: 'var(--radio-sm)',
+          borderRadius: '6px',
           fontSize: '11px',
           fontWeight: '700',
-          border: '1px solid var(--borde-color)'
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          zIndex: 2
         }}>
           Stock: {juego.stock}
         </span>
       </div>
 
-      {/* Contenido de la Tarjeta */}
-      <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
-        <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '700', color: 'var(--texto-principal)' }}>
+      {/* 📝 Título limpio en la parte inferior */}
+      <div style={{ padding: '16px 20px', backgroundColor: 'var(--bg-tarjeta, #151F33)' }}>
+        <h3 style={{ 
+          margin: 0, 
+          fontSize: '16px', 
+          fontWeight: '700', 
+          color: '#F8FAFC',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }}>
           {juego.titulo}
         </h3>
-        
-        <p style={{ 
-          fontSize: '14px', 
-          color: 'var(--texto-secundario)', 
-          margin: 0, 
-          lineHeight: '1.5',
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden'
-        }}>
-          {juego.descripcion}
-        </p>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid var(--borde-color)' }}>
-          <span style={{ fontSize: '22px', fontWeight: '800', color: 'var(--color-primario)' }}>
-            ${juego.precio.toFixed(2)}
-          </span>
-          <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-exito)' }}>
-            Ver más →
-          </span>
-        </div>
       </div>
     </div>
   );
