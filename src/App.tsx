@@ -5,7 +5,7 @@ import { CatalogoJuegos } from './components/juegos/CatalogoJuego';
 import { BibliotecaJuegos, type JuegoBiblioteca } from './components/juegos/BibliotecaJuegos';
 import { VistaDetalleJuego } from './components/juegos/VistaDetalleJuego';
 import { PanelLogin } from './components/auth/PanelLogin';
-import logoNovaGames from './assets/logo_nova_games.webp';
+import logoNovaGames from './assets/logo.png';
 import type { Juego } from './types';
 
 export function App() {
@@ -34,12 +34,10 @@ export function App() {
 
   // 🛒 Función de compra: descuenta stock y añade a la biblioteca
   const handleComprarJuego = (juegoComprado: Juego) => {
-    // 1. Descontar stock en la tienda
     setJuegos(prev =>
       prev.map(j => j.id === juegoComprado.id ? { ...j, stock: j.stock - 1 } : j)
     );
 
-    // 2. Agregar a la biblioteca si no lo tiene
     const yaExiste = biblioteca.some(j => j.id === juegoComprado.id);
     if (!yaExiste) {
       setBiblioteca(prev => [
@@ -56,26 +54,27 @@ export function App() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#0B101D', color: '#F8FAFC', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-principal)', color: 'var(--texto-principal)', fontFamily: 'system-ui, sans-serif' }}>
       
       {/* 🧭 Menú Lateral Izquierdo */}
-      <aside style={{ width: '240px', backgroundColor: '#0F172A', borderRight: '1px solid #334155', display: 'flex', flexDirection: 'column', padding: '24px 16px', boxSizing: 'border-box' }}>
+      <aside style={{ width: '240px', backgroundColor: 'var(--bg-superficie)', borderRight: '1px solid var(--borde-color)', display: 'flex', flexDirection: 'column', padding: '24px 16px', boxSizing: 'border-box' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px', paddingLeft: '8px' }}>
           <img 
             src={logoNovaGames} 
             alt="Nova Games Logo" 
-            style={{ width: '200px', height: '200px', objectFit: 'contain' }} 
+            style={{ width: '38px', height: '38px', objectFit: 'contain' }} 
           />
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: 'var(--texto-principal)', letterSpacing: '0.5px' }}>NOVA GAMES</h2>
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <button 
             onClick={() => { setSeccionActiva('store'); navigate('/'); }}
             style={{
-              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '12px 16px', borderRadius: '8px', border: 'none',
-              backgroundColor: seccionActiva === 'store' ? '#1E293B' : 'transparent',
-              color: seccionActiva === 'store' ? '#38BDF8' : '#94A3B8',
-              fontWeight: '600', fontSize: '14px', cursor: 'pointer', textAlign: 'left'
+              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '12px 16px', borderRadius: 'var(--radio-sm)', border: 'none',
+              backgroundColor: seccionActiva === 'store' ? 'var(--bg-tarjeta)' : 'transparent',
+              color: seccionActiva === 'store' ? 'var(--color-primario)' : 'var(--texto-secundario)',
+              fontWeight: '600', fontSize: '14px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease'
             }}
           >
             🏪 Tienda
@@ -84,10 +83,10 @@ export function App() {
           <button 
             onClick={() => { setSeccionActiva('library'); navigate('/'); }}
             style={{
-              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '12px 16px', borderRadius: '8px', border: 'none',
-              backgroundColor: seccionActiva === 'library' ? '#1E293B' : 'transparent',
-              color: seccionActiva === 'library' ? '#38BDF8' : '#94A3B8',
-              fontWeight: '600', fontSize: '14px', cursor: 'pointer', textAlign: 'left'
+              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '12px 16px', borderRadius: 'var(--radio-sm)', border: 'none',
+              backgroundColor: seccionActiva === 'library' ? 'var(--bg-tarjeta)' : 'transparent',
+              color: seccionActiva === 'library' ? 'var(--color-primario)' : 'var(--texto-secundario)',
+              fontWeight: '600', fontSize: '14px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease'
             }}
           >
             📚 Biblioteca
@@ -99,7 +98,7 @@ export function App() {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         
         {/* Header Superior con Buscador y Usuario + Botón Logout */}
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 32px', backgroundColor: '#0B101D', borderBottom: '1px solid #334155' }}>
+        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 32px', backgroundColor: 'var(--bg-principal)', borderBottom: '1px solid var(--borde-color)' }}>
           <div style={{ width: '300px' }}>
             <input 
               type="text" 
@@ -107,8 +106,8 @@ export function App() {
               value={terminoBusqueda}
               onChange={(e) => setTerminoBusqueda(e.target.value)}
               style={{
-                width: '100%', padding: '10px 16px', backgroundColor: '#1E293B', border: '1px solid #334155',
-                borderRadius: '20px', color: '#F8FAFC', fontSize: '13px', outline: 'none', boxSizing: 'border-box'
+                width: '100%', padding: '10px 16px', backgroundColor: 'var(--bg-tarjeta)', border: '1px solid var(--borde-color)',
+                borderRadius: 'var(--radio-pill)', color: 'var(--texto-principal)', fontSize: '13px', outline: 'none', boxSizing: 'border-box'
               }}
             />
           </div>
@@ -118,10 +117,10 @@ export function App() {
             {usuarioLogueado ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ color: '#F8FAFC', fontSize: '14px', fontWeight: '600' }}>{usuarioLogueado}</span>
+                  <span style={{ color: 'var(--texto-principal)', fontSize: '14px', fontWeight: '600' }}>{usuarioLogueado}</span>
                   <div style={{
-                    width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#10B981',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0F172A', fontWeight: '700', fontSize: '14px'
+                    width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--color-exito)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#070B14', fontWeight: '700', fontSize: '14px'
                   }}>
                     {usuarioLogueado.charAt(0).toUpperCase()}
                   </div>
@@ -129,8 +128,8 @@ export function App() {
                 <button 
                   onClick={handleCerrarSesion}
                   style={{
-                    backgroundColor: 'transparent', color: '#EF4444', border: '1px solid #EF4444', padding: '6px 12px',
-                    borderRadius: '16px', fontWeight: '600', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s ease'
+                    backgroundColor: 'transparent', color: 'var(--color-peligro)', border: '1px solid var(--color-peligro)', padding: '6px 12px',
+                    borderRadius: 'var(--radio-pill)', fontWeight: '600', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s ease'
                   }}
                 >
                   Cerrar Sesión
@@ -140,9 +139,19 @@ export function App() {
               <button 
                 onClick={() => setMostrarModalLogin(true)}
                 style={{
-                  backgroundColor: '#10B981', color: '#FFF', border: 'none', padding: '8px 16px',
-                  borderRadius: '20px', fontWeight: '700', fontSize: '13px', cursor: 'pointer'
+                  backgroundColor: 'var(--color-exito)',
+                  color: '#FFF',
+                  border: 'none',
+                  padding: '10px 22px',
+                  borderRadius: 'var(--radio-pill)',
+                  fontWeight: '800',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  boxShadow: 'var(--sombra-boton)',
+                  transition: 'transform 0.2s ease, opacity 0.2s ease'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
               >
                 Registrarse / Iniciar Sesión
               </button>

@@ -1,0 +1,25 @@
+/* src/styles/tokens.css */
+:root {
+  --bg-principal: #070B14;
+  --bg-superficie: #0E1626;
+  --bg-tarjeta: #151F33;
+  --bg-tarjeta-hover: #1E2D4A;
+  
+  --color-primario: #38BDF8;
+  --color-primario-glow: rgba(56, 189, 248, 0.3);
+  --color-exito: #10B981;
+  --color-exito-glow: rgba(16, 185, 129, 0.4);
+  
+  --texto-principal: #F8FAFC;
+  --texto-secundario: #94A3B8;
+  
+  --borde-color: #23324A;
+  --borde-activo: #38BDF8;
+  
+  --radio-lg: 16px;
+  --radio-pill: 30px;
+  
+  --sombra-card: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+  --sombra-card-hover: 0 20px 35px -10px var(--color-primario-glow);
+  --sombra-boton: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
