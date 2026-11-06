@@ -23,7 +23,7 @@ export const CartaJuego: React.FC<CartaJuegoProps> = ({ juego }) => {
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         display: 'flex',
         flexDirection: 'column',
-        height: '340px',
+        height: '360px', 
         position: 'relative'
       }}
       onMouseEnter={(e) => {
@@ -37,9 +37,10 @@ export const CartaJuego: React.FC<CartaJuegoProps> = ({ juego }) => {
         e.currentTarget.style.boxShadow = '0 10px 20px -5px rgba(0, 0, 0, 0.5)';
       }}
     >
-      {/* 🖼️ Imagen / Póster principal */}
+      {/* 🖼️ Contenedor de la Imagen con posición absoluta para forzar el tamaño */}
       <div style={{ 
-        flex: 1, 
+        width: '100%',
+        height: '280px', 
         backgroundColor: '#070B14', 
         position: 'relative', 
         overflow: 'hidden'
@@ -49,45 +50,49 @@ export const CartaJuego: React.FC<CartaJuegoProps> = ({ juego }) => {
             src={juego.imagenUrl} 
             alt={juego.titulo} 
             style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
               width: '100%',
               height: '100%',
-              objectFit: 'cover'
+              objectFit: 'cover' 
             }}
           />
         ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
-            🎮 {juego.titulo}
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', fontSize: '13px' }}>
+            Sin imagen
           </div>
         )}
 
         {/* Badge de Stock flotante */}
         <span style={{
           position: 'absolute',
-          top: '12px',
-          right: '12px',
+          top: '10px',
+          right: '10px',
           backgroundColor: 'rgba(7, 11, 20, 0.85)',
           color: '#F8FAFC',
-          padding: '4px 10px',
+          padding: '4px 8px',
           borderRadius: '6px',
           fontSize: '11px',
           fontWeight: '700',
           border: '1px solid rgba(255, 255, 255, 0.1)',
-          zIndex: 2
+          zIndex: 3
         }}>
           Stock: {juego.stock}
         </span>
       </div>
 
       {/* 📝 Título limpio en la parte inferior */}
-      <div style={{ padding: '16px 20px', backgroundColor: 'var(--bg-tarjeta, #151F33)' }}>
+      <div style={{ padding: '14px 16px', backgroundColor: 'var(--bg-tarjeta, #151F33)', flex: 1, display: 'flex', alignItems: 'center' }}>
         <h3 style={{ 
           margin: 0, 
-          fontSize: '16px', 
+          fontSize: '15px', 
           fontWeight: '700', 
           color: '#F8FAFC',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
-          textOverflow: 'ellipsis'
+          textOverflow: 'ellipsis',
+          width: '100%'
         }}>
           {juego.titulo}
         </h3>
