@@ -39,62 +39,59 @@ export const PanelAdmin: React.FC<PanelAdminProps> = ({ juegos, setJuegos }) => 
   };
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', color: '#F8FAFC' }}>
-      <h1 style={{ fontSize: '26px', fontWeight: '800', marginBottom: '8px' }}>Panel de Administración</h1>
-      <p style={{ color: '#94A3B8', marginBottom: '30px' }}>Administra el catálogo de la tienda, rutas de imágenes, precios y stock.</p>
+    <div className="max-w-[900px] mx-auto text-texto-principal">
+      <h1 className="text-[26px] font-extrabold mb-2">Panel de Administración</h1>
+      <p className="text-texto-secundario mb-[30px]">Administra el catálogo de la tienda, rutas de imágenes, precios y stock.</p>
 
       {/* Formulario para añadir juegos */}
-      <div style={{ backgroundColor: '#151F33', padding: '28px', borderRadius: '16px', border: '1px solid #23324A', marginBottom: '40px' }}>
-        <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', color: '#38BDF8' }}>Añadir Nuevo Videojuego</h3>
+      <div className="bg-bg-tarjeta p-7 rounded-2xl border border-borde mb-10">
+        <h3 className="m-0 mb-5 text-lg text-primario font-bold">Añadir Nuevo Videojuego</h3>
         
-        <form onSubmit={handleAgregarJuego} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <form onSubmit={handleAgregarJuego} className="grid grid-cols-2 gap-4">
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: '#94A3B8', marginBottom: '6px' }}>Título del Juego</label>
+            <label className="block text-[13px] text-texto-secundario mb-1.5">Título del Juego</label>
             <input 
               type="text" value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="Ej. Grand Theft Auto VI" required
-              style={{ width: '100%', padding: '10px', backgroundColor: '#070B14', border: '1px solid #23324A', borderRadius: '8px', color: '#FFF', boxSizing: 'border-box' }}
+              className="w-full p-2.5 bg-bg-principal border border-borde rounded-lg text-white box-border"
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: '#94A3B8', marginBottom: '6px' }}>Precio ($)</label>
+            <label className="block text-[13px] text-texto-secundario mb-1.5">Precio ($)</label>
             <input 
               type="number" step="0.01" value={precio} onChange={e => setPrecio(e.target.value)} placeholder="59.99" required
-              style={{ width: '100%', padding: '10px', backgroundColor: '#070B14', border: '1px solid #23324A', borderRadius: '8px', color: '#FFF', boxSizing: 'border-box' }}
+              className="w-full p-2.5 bg-bg-principal border border-borde rounded-lg text-white box-border"
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: '#94A3B8', marginBottom: '6px' }}>Stock Inicial</label>
+            <label className="block text-[13px] text-texto-secundario mb-1.5">Stock Inicial</label>
             <input 
               type="number" value={stock} onChange={e => setStock(e.target.value)} placeholder="20" required
-              style={{ width: '100%', padding: '10px', backgroundColor: '#070B14', border: '1px solid #23324A', borderRadius: '8px', color: '#FFF', boxSizing: 'border-box' }}
+              className="w-full p-2.5 bg-bg-principal border border-borde rounded-lg text-white box-border"
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: '#94A3B8', marginBottom: '6px' }}>Ruta de la Imagen (URL / Public)</label>
+            <label className="block text-[13px] text-texto-secundario mb-1.5">Ruta de la Imagen (URL / Public)</label>
             <input 
               type="text" value={imagenUrl} onChange={e => setImagenUrl(e.target.value)} placeholder="/images/imagenes-juegos/juego.jpg"
-              style={{ width: '100%', padding: '10px', backgroundColor: '#070B14', border: '1px solid #23324A', borderRadius: '8px', color: '#FFF', boxSizing: 'border-box' }}
+              className="w-full p-2.5 bg-bg-principal border border-borde rounded-lg text-white box-border"
             />
           </div>
 
-          <div style={{ gridColumn: 'span 2' }}>
-            <label style={{ display: 'block', fontSize: '13px', color: '#94A3B8', marginBottom: '6px' }}>Descripción</label>
+          <div className="col-span-2">
+            <label className="block text-[13px] text-texto-secundario mb-1.5">Descripción</label>
             <textarea 
               value={descripcion} onChange={e => setDescripcion(e.target.value)} placeholder="Sinopsis del juego..." rows={3}
-              style={{ width: '100%', padding: '10px', backgroundColor: '#070B14', border: '1px solid #23324A', borderRadius: '8px', color: '#FFF', boxSizing: 'border-box', resize: 'vertical' }}
+              className="w-full p-2.5 bg-bg-principal border border-borde rounded-lg text-white box-border resize-y"
             />
           </div>
 
-          <div style={{ gridColumn: 'span 2', marginTop: '10px' }}>
+          <div className="col-span-2 mt-2.5">
             <button 
               type="submit"
-              style={{
-                backgroundColor: '#10B981', color: '#FFF', border: 'none', padding: '12px 24px',
-                borderRadius: '30px', fontWeight: '800', fontSize: '14px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
-              }}
+              className="bg-exito text-white border-none py-3 px-6 rounded-[30px] font-extrabold text-sm cursor-pointer shadow-[0_4px_15px_rgba(16,185,129,0.3)]"
             >
               Guardar y Publicar en Tienda
             </button>
@@ -103,16 +100,16 @@ export const PanelAdmin: React.FC<PanelAdminProps> = ({ juegos, setJuegos }) => 
       </div>
 
       {/* Listado rápido de administración */}
-      <div style={{ backgroundColor: '#151F33', padding: '24px', borderRadius: '16px', border: '1px solid #23324A' }}>
-        <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', color: '#F8FAFC' }}>Juegos Registrados en el Sistema ({juegos.length})</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div className="bg-bg-tarjeta p-6 rounded-2xl border border-borde">
+        <h3 className="m-0 mb-4 text-lg text-texto-principal font-bold">Juegos Registrados en el Sistema ({juegos.length})</h3>
+        <div className="flex flex-col gap-2.5">
           {juegos.map(j => (
-            <div key={j.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', backgroundColor: '#070B14', borderRadius: '8px', border: '1px solid #23324A' }}>
+            <div key={j.id} className="flex justify-between items-center py-3 px-4 bg-bg-principal rounded-lg border border-borde">
               <div>
-                <strong style={{ color: '#F8FAFC' }}>{j.titulo}</strong>
-                <span style={{ color: '#94A3B8', fontSize: '13px', marginLeft: '12px' }}>Stock: {j.stock} | ${j.precio}</span>
+                <strong className="text-texto-principal">{j.titulo}</strong>
+                <span className="text-texto-secundario text-[13px] ml-3">Stock: {j.stock} | ${j.precio}</span>
               </div>
-              <span style={{ fontSize: '12px', color: '#38BDF8' }}>ID: {j.id}</span>
+              <span className="text-xs text-primario">ID: {j.id}</span>
             </div>
           ))}
         </div>

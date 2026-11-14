@@ -26,91 +26,38 @@ export const CarruselDestacados: React.FC<CarruselProps> = ({ juegos }) => {
   const juegoActual = destacados[indiceActual];
 
   return (
-    <div style={{
-      position: 'relative',
-      height: '400px',
-      backgroundColor: 'var(--bg-tarjeta, #151F33)',
-      borderRadius: '16px',
-      border: '1px solid var(--borde-color, #23324A)',
-      overflow: 'hidden',
-      marginBottom: '40px',
-      boxShadow: '0 15px 35px rgba(0,0,0,0.6)',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'flex-end'
-    }}>
+    <div className="relative h-[400px] bg-bg-tarjeta rounded-2xl border border-borde overflow-hidden mb-10 shadow-[0_15px_35px_rgba(0,0,0,0.6)] flex flex-col justify-end">
       {/* 🖼️ Imagen de portada de fondo con degradado cinematográfico */}
       {juegoActual.imagenUrl && (
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          backgroundImage: `url(${juegoActual.imagenUrl})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          filter: 'brightness(1)',
-          zIndex: 1,
-          transition: 'background-image 0.5s ease-in-out'
-        }} />
+        <div
+          style={{ backgroundImage: `url(${juegoActual.imagenUrl})` }}
+          className="absolute inset-0 w-full h-full bg-cover bg-center brightness-100 z-[1] transition-all duration-500 ease-in-out"
+        />
       )}
 
       {/* Capa de sombreado lateral para legibilidad del texto */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        background: 'linear-gradient(90deg, #0d121f 0%, rgba(7, 11, 20, 0.8) 50%, transparent 100%), linear-gradient(0deg, #070B14 0%, transparent 50%)',
-        zIndex: 2
-      }} />
+      <div className="absolute inset-0 w-full h-full z-[2] bg-[linear-gradient(90deg,#0d121f_0%,rgba(7,11,20,0.8)_50%,transparent_100%),linear-gradient(0deg,#070B14_0%,transparent_50%)]" />
 
       {/* Badge Destacado */}
-      <div style={{
-        position: 'absolute',
-        top: '20px',
-        left: '24px',
-        zIndex: 3,
-        backgroundColor: 'var(--color-primario, #38BDF8)',
-        color: '#070B14',
-        padding: '6px 14px',
-        borderRadius: '30px',
-        fontSize: '11px',
-        fontWeight: '800',
-        letterSpacing: '1px',
-        textTransform: 'uppercase'
-      }}>
+      <div className="absolute top-5 left-6 z-[3] bg-primario text-bg-principal py-1.5 px-3.5 rounded-[30px] text-[11px] font-extrabold tracking-wider uppercase">
         ★ Tendencia Global
       </div>
 
       {/* Información del juego */}
-      <div style={{ position: 'relative', zIndex: 3, padding: '36px', maxWidth: '600px' }}>
-        <h2 style={{ fontSize: '38px', fontWeight: '800', color: '#F8FAFC', margin: '0 0 12px 0', textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>
+      <div className="relative z-[3] p-9 max-w-[600px]">
+        <h2 className="text-[38px] font-extrabold text-texto-principal m-0 mb-3 [text-shadow:0_2px_10px_rgba(0,0,0,0.8)]">
           {juegoActual.titulo}
         </h2>
-        <p style={{ fontSize: '15px', color: '#CBD5E1', margin: '0 0 20px 0', lineHeight: '1.5', textShadow: '0 1px 5px rgba(0,0,0,0.8)' }}>
+        <p className="text-[15px] text-[#CBD5E1] m-0 mb-5 leading-normal [text-shadow:0_1px_5px_rgba(0,0,0,0.8)]">
           {juegoActual.descripcion}
         </p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <span style={{ fontSize: '26px', fontWeight: '800', color: '#38BDF8', textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>
+        <div className="flex items-center gap-5">
+          <span className="text-[26px] font-extrabold text-primario [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
             ${juegoActual.precio.toFixed(2)}
           </span>
           <button 
             onClick={() => navigate(`/juego/${juegoActual.id}`)}
-            style={{
-              backgroundColor: '#38BDF8',
-              color: '#070B14',
-              border: 'none',
-              padding: '12px 28px',
-              borderRadius: '30px',
-              fontWeight: '700',
-              fontSize: '14px',
-              cursor: 'pointer',
-              boxShadow: '0 4px 15px rgba(56, 189, 248, 0.4)',
-              transition: 'transform 0.2s ease'
-            }}
+            className="bg-primario text-bg-principal border-none py-3 px-7 rounded-[30px] font-bold text-sm cursor-pointer shadow-[0_4px_15px_rgba(56,189,248,0.4)] transition-transform duration-200 hover:scale-[1.02]"
           >
             Ver Detalles y Comprar
           </button>
@@ -118,20 +65,14 @@ export const CarruselDestacados: React.FC<CarruselProps> = ({ juegos }) => {
       </div>
 
       {/* Indicadores de páginas del carrusel */}
-      <div style={{ position: 'absolute', bottom: '20px', right: '24px', zIndex: 3, display: 'flex', gap: '8px' }}>
+      <div className="absolute bottom-5 right-6 z-[3] flex gap-2">
         {destacados.map((_, idx) => (
           <button
             key={idx}
             onClick={() => setIndiceActual(idx)}
-            style={{
-              width: idx === indiceActual ? '28px' : '10px',
-              height: '10px',
-              borderRadius: '5px',
-              backgroundColor: idx === indiceActual ? '#38BDF8' : 'rgba(255,255,255,0.3)',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}
+            className={`h-2.5 rounded-[5px] border-none cursor-pointer transition-all duration-300 ${
+              idx === indiceActual ? 'w-7 bg-primario' : 'w-2.5 bg-white/30'
+            }`}
           />
         ))}
       </div>

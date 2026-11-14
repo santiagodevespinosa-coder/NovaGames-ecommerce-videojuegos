@@ -56,39 +56,37 @@ export function App() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-principal, #070B14)', color: 'var(--texto-principal, #F8FAFC)', fontFamily: 'system-ui, sans-serif' }}>
+    <div className="flex min-h-screen bg-bg-principal text-texto-principal font-sans">
       
       {/* 🧭 Menú Lateral Izquierdo */}
-      <aside style={{ width: '240px', backgroundColor: 'var(--bg-superficie, #0E1626)', borderRight: '1px solid var(--borde-color, #23324A)', display: 'flex', flexDirection: 'column', padding: '24px 16px', boxSizing: 'border-box' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px', paddingLeft: '8px' }}>
+      <aside className="w-[240px] bg-bg-superficie border-r border-borde flex flex-col py-6 px-4 box-border shrink-0">
+        <div className="flex items-center gap-3 mb-8 pl-2">
           <img 
             src={logoNovaGames} 
             alt="Nova Games Logo" 
-            style={{ width: '200px', height: '200px', objectFit: 'contain' }} 
+            className="w-[200px] h-[200px] object-contain" 
           />
         </div>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <nav className="flex flex-col gap-2">
           <button 
             onClick={() => { setSeccionActiva('store'); navigate('/'); }}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '12px 16px', borderRadius: '8px', border: 'none',
-              backgroundColor: seccionActiva === 'store' ? '#151F33' : 'transparent',
-              color: seccionActiva === 'store' ? '#38BDF8' : '#94A3B8',
-              fontWeight: '600', fontSize: '14px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease'
-            }}
+            className={`flex items-center gap-3 w-full py-3 px-4 rounded-lg border-none font-semibold text-sm cursor-pointer text-left transition-all duration-200 ${
+              seccionActiva === 'store'
+                ? 'bg-bg-tarjeta text-primario'
+                : 'bg-transparent text-texto-secundario hover:text-texto-principal'
+            }`}
           >
             🏪 Tienda
           </button>
 
           <button 
             onClick={() => { setSeccionActiva('library'); navigate('/'); }}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '12px 16px', borderRadius: '8px', border: 'none',
-              backgroundColor: seccionActiva === 'library' ? '#151F33' : 'transparent',
-              color: seccionActiva === 'library' ? '#38BDF8' : '#94A3B8',
-              fontWeight: '600', fontSize: '14px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease'
-            }}
+            className={`flex items-center gap-3 w-full py-3 px-4 rounded-lg border-none font-semibold text-sm cursor-pointer text-left transition-all duration-200 ${
+              seccionActiva === 'library'
+                ? 'bg-bg-tarjeta text-primario'
+                : 'bg-transparent text-texto-secundario hover:text-texto-principal'
+            }`}
           >
             📚 Biblioteca
           </button>
@@ -96,72 +94,50 @@ export function App() {
       </aside>
 
       {/* 🚀 Contenido Principal */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div className="flex-1 flex flex-col min-w-0">
         
         {/* Header Superior con Buscador y Botones de Autenticación Separados */}
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 32px', backgroundColor: '#070B14', borderBottom: '1px solid #23324A' }}>
-          <div style={{ width: '300px' }}>
+        <header className="flex justify-between items-center py-4 px-8 bg-bg-principal border-b border-borde">
+          <div className="w-[300px]">
             <input 
               type="text" 
               placeholder="Search store..." 
               value={terminoBusqueda}
               onChange={(e) => setTerminoBusqueda(e.target.value)}
-              style={{
-                width: '100%', padding: '10px 16px', backgroundColor: '#151F33', border: '1px solid #23324A',
-                borderRadius: '30px', color: '#F8FAFC', fontSize: '13px', outline: 'none', boxSizing: 'border-box'
-              }}
+              className="w-full py-2.5 px-4 bg-bg-tarjeta border border-borde rounded-[30px] text-texto-principal text-[13px] outline-none box-border focus:border-primario"
             />
           </div>
 
           {/* 👤 Control de Autenticación con Botones Independientes */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="flex items-center gap-3">
             {usuarioLogueado ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div className="flex items-center gap-3">
                 <button 
                   onClick={() => navigate('/admin')}
-                  style={{
-                    backgroundColor: '#1E293B', color: '#38BDF8', border: '1px solid #38BDF8', padding: '8px 16px',
-                    borderRadius: '20px', fontWeight: '700', fontSize: '13px', cursor: 'pointer'
-                  }}
+                  className="bg-[#1E293B] text-primario border border-primario py-2 px-4 rounded-[20px] font-bold text-[13px] cursor-pointer"
                 >
                   ⚙️ Panel Admin
                 </button>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ color: '#F8FAFC', fontSize: '14px', fontWeight: '600' }}>{usuarioLogueado}</span>
-                  <div style={{
-                    width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#10B981',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#070B14', fontWeight: '700', fontSize: '14px'
-                  }}>
+                <div className="flex items-center gap-2">
+                  <span className="text-texto-principal text-sm font-semibold">{usuarioLogueado}</span>
+                  <div className="w-8 h-8 rounded-full bg-exito flex items-center justify-center text-bg-principal font-bold text-sm">
                     {usuarioLogueado.charAt(0).toUpperCase()}
                   </div>
                 </div>
                 <button 
                   onClick={handleCerrarSesion}
-                  style={{
-                    backgroundColor: 'transparent', color: '#EF4444', border: '1px solid #EF4444', padding: '6px 12px',
-                    borderRadius: '20px', fontWeight: '600', fontSize: '12px', cursor: 'pointer'
-                  }}
+                  className="bg-transparent text-[#EF4444] border border-[#EF4444] py-1.5 px-3 rounded-[20px] font-semibold text-xs cursor-pointer"
                 >
                   Cerrar Sesión
                 </button>
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div className="flex items-center gap-2.5">
                 {/* Botón de Iniciar Sesión (Secundario) */}
                 <button 
                   onClick={() => setMostrarModalLogin(true)}
-                  style={{
-                    backgroundColor: 'transparent',
-                    color: '#F8FAFC',
-                    border: '1px solid #334155',
-                    padding: '9px 18px',
-                    borderRadius: '20px',
-                    fontWeight: '700',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
+                  className="bg-transparent text-texto-principal border border-[#334155] py-[9px] px-[18px] rounded-[20px] font-bold text-[13px] cursor-pointer transition-all duration-200"
                 >
                   Iniciar Sesión
                 </button>
@@ -169,18 +145,7 @@ export function App() {
                 {/* Botón de Registrarse (Primario destacado) */}
                 <button 
                   onClick={() => setMostrarModalLogin(true)}
-                  style={{
-                    backgroundColor: '#10B981',
-                    color: '#FFF',
-                    border: 'none',
-                    padding: '9px 18px',
-                    borderRadius: '20px',
-                    fontWeight: '700',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-                    transition: 'transform 0.2s ease'
-                  }}
+                  className="bg-exito text-white border-none py-[9px] px-[18px] rounded-[20px] font-bold text-[13px] cursor-pointer shadow-[0_4px_12px_rgba(16,185,129,0.3)] transition-transform duration-200"
                 >
                   Registrarse
                 </button>
@@ -190,7 +155,7 @@ export function App() {
         </header>
 
         {/* Zona de Vistas / Enrutamiento */}
-        <main style={{ padding: '40px', flex: 1, boxSizing: 'border-box', overflowY: 'auto' }}>
+        <main className="p-10 flex-1 box-border overflow-y-auto">
           <Routes>
             <Route path="/" element={
               <>

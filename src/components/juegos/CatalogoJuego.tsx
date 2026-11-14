@@ -16,33 +16,28 @@ export const CatalogoJuegos: React.FC<CatalogoJuegosProps> = ({ juegos, filtroBu
   );
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <div className="max-w-[1200px] mx-auto">
       
       {/* 🌟 Carrusel Superior de Juegos Destacados (Se oculta si hay búsqueda activa) */}
       {!filtroBusqueda && <CarruselDestacados juegos={juegos} />}
 
       {/* 🏷️ Título de la Sección */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h2 style={{ color: 'var(--texto-principal, #F8FAFC)', margin: 0, fontSize: '22px', fontWeight: '700' }}>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-texto-principal m-0 text-[22px] font-bold">
           {filtroBusqueda ? `Resultados para "${filtroBusqueda}"` : 'Catálogo Destacado'}
         </h2>
-        <span style={{ color: 'var(--texto-secundario, #94A3B8)', fontSize: '13px', fontWeight: '600' }}>
+        <span className="text-texto-secundario text-[13px] font-semibold">
           {juegosFiltrados.length} {juegosFiltrados.length === 1 ? 'juego encontrado' : 'juegos encontrados'}
         </span>
       </div>
 
       {/* 🎮 Grilla Fluida de Tarjetas tipo Póster */}
       {juegosFiltrados.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px', color: 'var(--texto-secundario, #94A3B8)' }}>
-          <p style={{ fontSize: '16px' }}>No se encontraron videojuegos que coincidan con tu búsqueda.</p>
+        <div className="text-center p-[60px] text-texto-secundario">
+          <p className="text-base">No se encontraron videojuegos que coincidan con tu búsqueda.</p>
         </div>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-          gap: '24px',
-          paddingBottom: '40px'
-        }}>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6 pb-10">
           {juegosFiltrados.map(juego => (
             <CartaJuego key={juego.id} juego={juego} />
           ))}
