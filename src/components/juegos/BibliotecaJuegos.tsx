@@ -4,25 +4,20 @@ import React from 'react';
 export interface JuegoBiblioteca {
   id: number;
   titulo: string;
+  imagenUrl?: string;
   horasJugadas: number;
   instalado: boolean;
 }
 
 interface BibliotecaJuegosProps {
   juegosBiblioteca: JuegoBiblioteca[];
-  setJuegosBiblioteca: React.Dispatch<React.SetStateAction<JuegoBiblioteca[]>>;
+  onToggleInstalacion: (id: number) => void;
 }
 
-export const BibliotecaJuegos: React.FC<BibliotecaJuegosProps> = ({ juegosBiblioteca, setJuegosBiblioteca }) => {
-
-  const toggleInstalacion = (id: number) => {
-    setJuegosBiblioteca(prev =>
-      prev.map(juego =>
-        juego.id === id ? { ...juego, instalado: !juego.instalado } : juego
-      )
-    );
-  };
-
+export const BibliotecaJuegos: React.FC<BibliotecaJuegosProps> = ({
+  juegosBiblioteca,
+  onToggleInstalacion,
+}) => {
   return (
     <div>
       <div className="mb-6">
@@ -53,7 +48,7 @@ export const BibliotecaJuegos: React.FC<BibliotecaJuegosProps> = ({ juegosBiblio
               </div>
 
               <button
-                onClick={() => toggleInstalacion(juego.id)}
+                onClick={() => onToggleInstalacion(juego.id)}
                 className={`text-white border-none py-2.5 px-4 rounded-lg font-bold text-sm cursor-pointer transition-colors duration-200 text-center ${juego.instalado ? 'bg-[#334155]' : 'bg-exito'
                   }`}
               >

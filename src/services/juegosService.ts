@@ -1,47 +1,37 @@
 // src/services/juegosService.ts
-import type { CrearJuegoDto, Juego } from '../types';
+import { apiFetch } from './apiClient';
+import type { ApiMessageResponse, CreateJuegoApiDto, Juego, JuegoApi } from '../types';
+import { calcularPrecioFinal, getGameImageUrl } from '../utils/gameImages';
 
-// TODO: Hay que cambiar el puerto por el que use Agus
-const API_URL = 'http://localhost:5292/api';
+function mapJuegoApiToJuego(api: JuegoApi): Juego {
+  return {
+    id: api.idJuego,
+    titulo: api.titulo,
+    descripcion: api.descripcion ?? '',
+    precio: calcularPrecioFinal(api.precioBase, api.descuentoPorcentaje),
+    stock: 99,
+    imagenUrl: api.imagenUrl || getGameImageUrl(api.slug, api.titulo),
+    categoriaId: 1,
+    desarrolladorId: api.idDesarrollador ?? 1,
+  };
+}
 
 export const juegosService = {
-  // Obtener todos los juegos (para el catálogo)
   async obtenerJuegos(): Promise<Juego[]> {
-    try {
-      // CORREGIDO: Se agregó la barra fuera de las llaves ${API_URL}/juegos
-      const response = await fetch(`${API_URL}/juegos`);
-
-      if (!response.ok) {
-        throw new Error('Error al obtener el listado de videojuegos');
-      }
-      const data: Juego[] = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error en juegosService.obtenerJuegos:', error);
-      throw error;
-    }
+    const data = await apiFetch<JuegoApi[]>('/juegos');
+    return data.map(mapJuegoApiToJuego);
   },
 
-  // Crear un nuevo juego 
-  async crearJuego(juegoDto: CrearJuegoDto): Promise<Juego> {
-    try {
-      const response = await fetch(`${API_URL}/juegos`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(juegoDto),
-      });
+  async obtenerJuegoPorId(id: number): Promise<Juego> {
+    const data = await apiFetch<JuegoApi>(`/juegos/${id}`);
+    return mapJuegoApiToJuego(data);
+  },
 
-      if (!response.ok) {
-        throw new Error('No se pudo registrar el videojuego');
-      }
-
-      const nuevoJuego: Juego = await response.json();
-      return nuevoJuego;
-    } catch (error) {
-      console.error('Error en juegosService.crearJuego:', error);
-      throw error;
-    }
-  }
+  async crearJuego(juegoDto: CreateJuegoApiDto): Promise<Juego> {
+    const response = await apiFetch<ApiMessageResponse<JuegoApi>>('/juegos', {
+      method: 'POST',
+      body: JSON.stringify(juegoDto),
+    });
+    return mapJuegoApiToJuego(response.datos);
+  },
 };

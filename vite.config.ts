@@ -7,11 +7,10 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      // Cualquier petición que empiece con /api será redirigida a tu backend de C#
+      // Redirige peticiones /api al backend ASP.NET Core (API_videojurgos)
       '/api': {
-        target: 'https://localhost:7001', // Cambia esto por el puerto real de tu API de C#
+        target: 'http://localhost:5292',
         changeOrigin: true,
-        secure: false, // Útil si usas certificados https locales autofirmados
       }
     }
   }

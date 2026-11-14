@@ -37,7 +37,7 @@ export const CatalogoJuegos: React.FC<CatalogoJuegosProps> = ({ juegos, filtroBu
           <p className="text-base">No se encontraron videojuegos que coincidan con tu búsqueda.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6 pb-10">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(290px,1fr))] gap-7 pb-10">
           {juegosFiltrados.map(juego => (
             <CartaJuego key={juego.id} juego={juego} />
           ))}

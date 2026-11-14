@@ -1,190 +1,323 @@
 // src/App.tsx
-import React, { useState } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
-import { CatalogoJuegos } from './components/juegos/CatalogoJuego';
+import { useEffect, useState } from 'react';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { CatalogoJuegos } from './components/juegos/CatalogoJuegos';
 import { BibliotecaJuegos, type JuegoBiblioteca } from './components/juegos/BibliotecaJuegos';
 import { VistaDetalleJuego } from './components/juegos/VistaDetalleJuego';
 import { PanelLogin } from './components/auth/PanelLogin';
-import logoNovaGames from './assets/logo_nova_games.webp';
-import type { Juego } from './types';
 import { PanelAdmin } from './components/admin/PanelAdmin';
+import { Sidebar } from './components/layout/Sidebar';
+import { Header } from './components/layout/Header';
+import { ConceptMaximalistPage } from './components/concept/ConceptMaximalistPage';
+import { ConceptFuturisticPage } from './components/concept/ConceptFuturisticPage';
+import { ConceptStrangePage } from './components/concept/ConceptStrangePage';
+import { ConceptArtGalleryPage } from './components/concept/ConceptArtGalleryPage';
+import { ConceptEnchantedPage } from './components/concept/ConceptEnchantedPage';
+import { ConceptAmalgamPage } from './components/concept/ConceptAmalgamPage';
+import { ConceptBladesPage } from './components/concept/ConceptBladesPage';
+import { ConceptGlassPage } from './components/concept/ConceptGlassPage';
+import { ConceptNeuPage } from './components/concept/ConceptNeuPage';
+import { ConceptCyberpunkPage } from './components/concept/ConceptCyberpunkPage';
+import { Concept3DLauncherPage } from './components/concept/Concept3DLauncherPage';
+import { juegosService } from './services/juegosService';
+import { authService } from './services/authService';
+import { bibliotecaService } from './services/bibliotecaService';
+import { ordenesService } from './services/ordenesService';
+import { TOKEN_STORAGE_KEY } from './services/apiClient';
+import type { BibliotecaItem, Juego, Usuario } from './types';
+
+const FALLBACK_JUEGOS: Juego[] = [
+  { id: 1, titulo: 'Cyberpunk 2077', descripcion: 'Un RPG de acción y aventura en mundo abierto ambientado en Night City.', precio: 59.99, stock: 15, categoriaId: 1, desarrolladorId: 1, imagenUrl: '/images/imagenes-juegos/imagen_cyberpunk_2077.webp' },
+  { id: 2, titulo: 'Minecraft', descripcion: 'Explora mundos infinitos y construye de todo, desde la casa más simple hasta el castillo más grandioso.', precio: 29.99, stock: 30, categoriaId: 2, desarrolladorId: 2, imagenUrl: '/images/imagenes-juegos/imagen_minecraft.webp' },
+  { id: 3, titulo: 'The Witcher 3: Wild Hunt', descripcion: 'Juego de rol de fantasía de mundo abierto basado en una historia y centrado en las opciones.', precio: 39.99, stock: 8, categoriaId: 1, desarrolladorId: 3, imagenUrl: '/images/imagenes-juegos/imagen_the_witcher_3_wild_hunt.webp' },
+];
 
 export function App() {
-  const [seccionActiva, setSeccionActiva] = useState<'store' | 'library'>('store');
   const [terminoBusqueda, setTerminoBusqueda] = useState<string>('');
-  
+
   // 🔐 Estados de Autenticación con persistencia en localStorage
-  const [usuarioLogueado, setUsuarioLogueado] = useState<string | null>(() => {
-    return localStorage.getItem('nova_usuario_logueado');
+  const [usuarioLogueado, setUsuarioLogueado] = useState<Usuario | null>(() => {
+    return authService.getStoredUser();
   });
   const [mostrarModalLogin, setMostrarModalLogin] = useState<boolean>(false);
+  const [modoAuthModal, setModoAuthModal] = useState<'login' | 'register'>('login');
 
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isConceptRoute = pathname.startsWith('/concept');
 
-  // Mock data de tienda con stock real y rutas de imágenes unificadas en imagenUrl
-  const [juegos, setJuegos] = useState<Juego[]>([
-    { id: 1, titulo: 'Cyberpunk 2077', descripcion: 'Un RPG de acción y aventura en mundo abierto ambientado en Night City.', precio: 59.99, stock: 15, categoriaId: 1, desarrolladorId: 1, imagenUrl: '/images/imagenes-juegos/imagen_cyberpunk_2077.webp' },
-    { id: 2, titulo: 'Minecraft', descripcion: 'Explora mundos infinitos y construye de todo, desde la casa más simple hasta el castillo más grandioso.', precio: 29.99, stock: 30, categoriaId: 2, desarrolladorId: 2, imagenUrl: '/images/imagenes-juegos/imagen_minecraft.webp' },
-    { id: 3, titulo: 'The Witcher 3: Wild Hunt', descripcion: 'Juego de rol de fantasía de mundo abierto basado en una historia y centrado en las opciones.', precio: 39.99, stock: 8, categoriaId: 1, desarrolladorId: 3, imagenUrl: '/images/imagenes-juegos/imagen_the_witcher_3_wild_hunt.webp' },
-  ]);
+  const [juegos, setJuegos] = useState<Juego[]>(FALLBACK_JUEGOS);
+  const [avisoJuegos, setAvisoJuegos] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    juegosService
+      .obtenerJuegos()
+      .then((data) => {
+        if (!cancelled) {
+          if (data.length > 0) {
+            setJuegos(data);
+            setAvisoJuegos(null);
+          } else {
+            setJuegos(FALLBACK_JUEGOS);
+            setAvisoJuegos('Backend conectado, pero la tabla juegos está vacía en MySQL. Mostrando catálogo de ejemplo.');
+          }
+        }
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          const message = err instanceof Error ? err.message : 'No se pudo conectar con la API.';
+          setJuegos(FALLBACK_JUEGOS);
+          setAvisoJuegos(`No se pudo cargar desde el backend (${message}). Mostrando catálogo de ejemplo.`);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // 📚 Estado de la Biblioteca del usuario
-  const [biblioteca, setBiblioteca] = useState<JuegoBiblioteca[]>([
-    { id: 1, titulo: 'Cyberpunk 2077', horasJugadas: 12.5, instalado: true }
-  ]);
+  const [bibliotecaItems, setBibliotecaItems] = useState<BibliotecaItem[]>([]);
+  const [juegosInstalados, setJuegosInstalados] = useState<Record<number, boolean>>({});
 
-  // 🛒 Función de compra: descuenta stock y añade a la biblioteca
-  const handleComprarJuego = (juegoComprado: Juego) => {
-    setJuegos(prev =>
-      prev.map(j => j.id === juegoComprado.id ? { ...j, stock: j.stock - 1 } : j)
+  // 🔄 Revalidar sesión contra /api/auth/me al cargar si existe JWT
+  useEffect(() => {
+    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (!token) return;
+
+    let cancelled = false;
+    authService
+      .getMe()
+      .then((usuario) => {
+        if (!cancelled) {
+          setUsuarioLogueado(usuario);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          authService.logout();
+          setUsuarioLogueado(null);
+          setBibliotecaItems([]);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // 📚 Cargar biblioteca real del usuario cuando inicia sesión
+  const idUsuarioLogueado = usuarioLogueado?.idUsuario;
+  useEffect(() => {
+    if (idUsuarioLogueado === undefined) return;
+
+    let cancelled = false;
+    bibliotecaService
+      .obtenerPorUsuario(idUsuarioLogueado)
+      .then((items) => {
+        if (!cancelled) {
+          setBibliotecaItems(items);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setBibliotecaItems([]);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [idUsuarioLogueado]);
+
+  const biblioteca: JuegoBiblioteca[] = usuarioLogueado
+    ? bibliotecaItems.map((item) => {
+        const juego = juegos.find((j) => j.id === item.idJuego);
+        return {
+          id: item.idJuego,
+          titulo: juego?.titulo ?? `Juego #${item.idJuego}`,
+          imagenUrl: juego?.imagenUrl,
+          horasJugadas: item.horasJugadas,
+          instalado: Boolean(juegosInstalados[item.idJuego]),
+        };
+      })
+    : [];
+
+  const handleToggleInstalacion = (idJuego: number) => {
+    setJuegosInstalados((prev) => ({
+      ...prev,
+      [idJuego]: !prev[idJuego],
+    }));
+  };
+
+  // 🛒 Función de compra: crea orden en el backend y actualiza la biblioteca
+  const handleComprarJuego = async (juegoComprado: Juego) => {
+    if (!usuarioLogueado) return;
+
+    await ordenesService.crearOrden({
+      idUsuario: usuarioLogueado.idUsuario,
+      metodoPago: 'Tarjeta',
+      detalles: [
+        {
+          idJuego: juegoComprado.id,
+          precioComprado: juegoComprado.precio,
+        },
+      ],
+    });
+
+    setJuegos((prev) =>
+      prev.map((j) =>
+        j.id === juegoComprado.id ? { ...j, stock: Math.max(0, j.stock - 1) } : j
+      )
     );
 
-    const yaExiste = biblioteca.some(j => j.id === juegoComprado.id);
-    if (!yaExiste) {
-      setBiblioteca(prev => [
-        ...prev,
-        { id: juegoComprado.id, titulo: juegoComprado.titulo, horasJugadas: 0, instalado: false }
-      ]);
-    }
+    const itemsActualizados = await bibliotecaService.obtenerPorUsuario(
+      usuarioLogueado.idUsuario
+    );
+    setBibliotecaItems(itemsActualizados);
   };
 
   // 🚪 Función de Cierre de Sesión (Logout)
   const handleCerrarSesion = () => {
-    localStorage.removeItem('nova_usuario_logueado');
+    authService.logout();
     setUsuarioLogueado(null);
+    setBibliotecaItems([]);
     navigate('/');
   };
 
+  const abrirModalAuth = (modo: 'login' | 'register' = 'login') => {
+    setModoAuthModal(modo);
+    setMostrarModalLogin(true);
+  };
+
+  const appRoutes = (
+    <Routes>
+      <Route
+        path="/"
+        element={<CatalogoJuegos juegos={juegos} filtroBusqueda={terminoBusqueda} />}
+      />
+      <Route
+        path="/biblioteca"
+        element={
+          <BibliotecaJuegos
+            juegosBiblioteca={biblioteca}
+            onToggleInstalacion={handleToggleInstalacion}
+          />
+        }
+      />
+      <Route
+        path="/juego/:id"
+        element={
+          <VistaDetalleJuego
+            juegos={juegos}
+            usuarioLogueado={usuarioLogueado}
+            onAbrirLogin={() => setMostrarModalLogin(true)}
+            onComprarJuego={handleComprarJuego}
+            juegosEnBiblioteca={biblioteca.map(j => j.id)}
+          />
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          usuarioLogueado?.tipoUsuario === 'Admin' ||
+          usuarioLogueado?.tipoUsuario === 'Desarrollador' ? (
+            <PanelAdmin juegos={juegos} setJuegos={setJuegos} />
+          ) : (
+            <div className="max-w-[600px] mx-auto rounded-2xl border border-borde bg-bg-tarjeta p-8 text-center">
+              <h2 className="mt-0 text-xl font-bold text-texto-principal">Acceso restringido</h2>
+              <p className="mb-0 text-sm text-texto-secundario">
+                Inicia sesión con una cuenta de Administrador o Desarrollador para gestionar el catálogo.
+              </p>
+            </div>
+          )
+        }
+      />
+      <Route
+        path="/concept"
+        element={<ConceptMaximalistPage juegos={juegos} />}
+      />
+      <Route
+        path="/concept-futuristic"
+        element={<ConceptFuturisticPage juegos={juegos} />}
+      />
+      <Route
+        path="/concept-strange"
+        element={<ConceptStrangePage juegos={juegos} />}
+      />
+      <Route
+        path="/concept-art"
+        element={<ConceptArtGalleryPage juegos={juegos} />}
+      />
+      <Route
+        path="/concept-enchanted"
+        element={<ConceptEnchantedPage juegos={juegos} />}
+      />
+      <Route
+        path="/concept-amalgam"
+        element={<ConceptAmalgamPage juegos={juegos} />}
+      />
+      <Route
+        path="/concept-blades"
+        element={<ConceptBladesPage juegos={juegos} />}
+      />
+      <Route
+        path="/concept-glass"
+        element={<ConceptGlassPage juegos={juegos} />}
+      />
+      <Route
+        path="/concept-neu"
+        element={<ConceptNeuPage juegos={juegos} />}
+      />
+      <Route
+        path="/concept-cyberpunk"
+        element={<ConceptCyberpunkPage juegos={juegos} />}
+      />
+      <Route
+        path="/concept-3d"
+        element={<Concept3DLauncherPage juegos={juegos} />}
+      />
+    </Routes>
+  );
+
+  if (isConceptRoute) {
+    return (
+      <main className="grid min-h-screen w-full">
+        {appRoutes}
+      </main>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-bg-principal text-texto-principal font-sans">
-      
-      {/* 🧭 Menú Lateral Izquierdo */}
-      <aside className="w-[240px] bg-bg-superficie border-r border-borde flex flex-col py-6 px-4 box-border shrink-0">
-        <div className="flex items-center gap-3 mb-8 pl-2">
-          <img 
-            src={logoNovaGames} 
-            alt="Nova Games Logo" 
-            className="w-[200px] h-[200px] object-contain" 
-          />
-        </div>
+      <Sidebar />
 
-        <nav className="flex flex-col gap-2">
-          <button 
-            onClick={() => { setSeccionActiva('store'); navigate('/'); }}
-            className={`flex items-center gap-3 w-full py-3 px-4 rounded-lg border-none font-semibold text-sm cursor-pointer text-left transition-all duration-200 ${
-              seccionActiva === 'store'
-                ? 'bg-bg-tarjeta text-primario'
-                : 'bg-transparent text-texto-secundario hover:text-texto-principal'
-            }`}
-          >
-            🏪 Tienda
-          </button>
-
-          <button 
-            onClick={() => { setSeccionActiva('library'); navigate('/'); }}
-            className={`flex items-center gap-3 w-full py-3 px-4 rounded-lg border-none font-semibold text-sm cursor-pointer text-left transition-all duration-200 ${
-              seccionActiva === 'library'
-                ? 'bg-bg-tarjeta text-primario'
-                : 'bg-transparent text-texto-secundario hover:text-texto-principal'
-            }`}
-          >
-            📚 Biblioteca
-          </button>
-        </nav>
-      </aside>
-
-      {/* 🚀 Contenido Principal */}
       <div className="flex-1 flex flex-col min-w-0">
-        
-        {/* Header Superior con Buscador y Botones de Autenticación Separados */}
-        <header className="flex justify-between items-center py-4 px-8 bg-bg-principal border-b border-borde">
-          <div className="w-[300px]">
-            <input 
-              type="text" 
-              placeholder="Search store..." 
-              value={terminoBusqueda}
-              onChange={(e) => setTerminoBusqueda(e.target.value)}
-              className="w-full py-2.5 px-4 bg-bg-tarjeta border border-borde rounded-[30px] text-texto-principal text-[13px] outline-none box-border focus:border-primario"
-            />
-          </div>
+        <Header
+          terminoBusqueda={terminoBusqueda}
+          onBusquedaChange={setTerminoBusqueda}
+          usuarioLogueado={usuarioLogueado}
+          onAbrirLogin={abrirModalAuth}
+          onCerrarSesion={handleCerrarSesion}
+        />
 
-          {/* 👤 Control de Autenticación con Botones Independientes */}
-          <div className="flex items-center gap-3">
-            {usuarioLogueado ? (
-              <div className="flex items-center gap-3">
-                <button 
-                  onClick={() => navigate('/admin')}
-                  className="bg-[#1E293B] text-primario border border-primario py-2 px-4 rounded-[20px] font-bold text-[13px] cursor-pointer"
-                >
-                  ⚙️ Panel Admin
-                </button>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-texto-principal text-sm font-semibold">{usuarioLogueado}</span>
-                  <div className="w-8 h-8 rounded-full bg-exito flex items-center justify-center text-bg-principal font-bold text-sm">
-                    {usuarioLogueado.charAt(0).toUpperCase()}
-                  </div>
-                </div>
-                <button 
-                  onClick={handleCerrarSesion}
-                  className="bg-transparent text-[#EF4444] border border-[#EF4444] py-1.5 px-3 rounded-[20px] font-semibold text-xs cursor-pointer"
-                >
-                  Cerrar Sesión
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2.5">
-                {/* Botón de Iniciar Sesión (Secundario) */}
-                <button 
-                  onClick={() => setMostrarModalLogin(true)}
-                  className="bg-transparent text-texto-principal border border-[#334155] py-[9px] px-[18px] rounded-[20px] font-bold text-[13px] cursor-pointer transition-all duration-200"
-                >
-                  Iniciar Sesión
-                </button>
-
-                {/* Botón de Registrarse (Primario destacado) */}
-                <button 
-                  onClick={() => setMostrarModalLogin(true)}
-                  className="bg-exito text-white border-none py-[9px] px-[18px] rounded-[20px] font-bold text-[13px] cursor-pointer shadow-[0_4px_12px_rgba(16,185,129,0.3)] transition-transform duration-200"
-                >
-                  Registrarse
-                </button>
-              </div>
-            )}
-          </div>
-        </header>
-
-        {/* Zona de Vistas / Enrutamiento */}
         <main className="p-10 flex-1 box-border overflow-y-auto">
-          <Routes>
-            <Route path="/" element={
-              <>
-                {seccionActiva === 'store' && <CatalogoJuegos juegos={juegos} filtroBusqueda={terminoBusqueda} />}
-                {seccionActiva === 'library' && <BibliotecaJuegos juegosBiblioteca={biblioteca} setJuegosBiblioteca={setBiblioteca} />}
-              </>
-            } />
-            <Route path="/juego/:id" element={
-              <VistaDetalleJuego 
-                juegos={juegos} 
-                usuarioLogueado={usuarioLogueado}
-                onAbrirLogin={() => setMostrarModalLogin(true)}
-                onComprarJuego={handleComprarJuego}
-                juegosEnBiblioteca={biblioteca.map(j => j.id)}
-              />
-            } />
-            <Route path="/admin" element={
-              <PanelAdmin juegos={juegos} setJuegos={setJuegos} />
-            } />
-          </Routes>
+          {avisoJuegos && (
+            <div className="mb-6 rounded-xl border border-primario/40 bg-primario/10 px-4 py-3 text-sm text-primario">
+              {avisoJuegos}
+            </div>
+          )}
+          {appRoutes}
         </main>
       </div>
 
-      {/* 🔑 Modal / Panel de Login condicional */}
       {mostrarModalLogin && (
-        <PanelLogin 
-          onLoginExitoso={(nombre) => {
-            localStorage.setItem('nova_usuario_logueado', nombre);
-            setUsuarioLogueado(nombre);
+        <PanelLogin
+          initialMode={modoAuthModal}
+          onLoginExitoso={(usuario) => {
+            setUsuarioLogueado(usuario);
             setMostrarModalLogin(false);
           }}
           onCerrar={() => setMostrarModalLogin(false)}

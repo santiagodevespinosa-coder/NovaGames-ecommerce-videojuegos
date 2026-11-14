@@ -1,71 +1,139 @@
 // src/components/auth/PanelLogin.tsx
 import React, { useState } from 'react';
+import { authService } from '../../services/authService';
+import type { Usuario } from '../../types';
 
 interface PanelLoginProps {
-  onLoginExitoso: (nombreUsuario: string) => void;
+  initialMode?: 'login' | 'register';
+  onLoginExitoso: (usuario: Usuario) => void;
   onCerrar: () => void;
 }
 
-export const PanelLogin: React.FC<PanelLoginProps> = ({ onLoginExitoso, onCerrar }) => {
-  const [usuario, setUsuario] = useState('');
-  const [clave, setClave] = useState('');
+const inputClass =
+  'w-full py-3 px-3.5 bg-bg-superficie border border-borde rounded-lg text-texto-principal text-sm box-border outline-none focus:border-primario';
+const labelClass = 'block text-[13px] text-texto-secundario mb-1.5';
 
-  const handleSubmit = (e: React.FormEvent) => {
+export const PanelLogin: React.FC<PanelLoginProps> = ({
+  initialMode = 'login',
+  onLoginExitoso,
+  onCerrar,
+}) => {
+  const [modo, setModo] = useState<'login' | 'register'>(initialMode);
+  const [nombreUsuario, setNombreUsuario] = useState('');
+  const [email, setEmail] = useState('');
+  const [clave, setClave] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (usuario.trim()) {
-      onLoginExitoso(usuario);
+    setError(null);
+    setEnviando(true);
+
+    try {
+      const datos =
+        modo === 'login'
+          ? await authService.login({ email: email.trim(), password: clave })
+          : await authService.signup({
+              nombreUsuario: nombreUsuario.trim(),
+              email: email.trim(),
+              password: clave,
+              tipoUsuario: 'Cliente',
+            });
+
+      onLoginExitoso(datos.usuario);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Ocurrió un error al autenticar.');
+    } finally {
+      setEnviando(false);
     }
+  };
+
+  const alternarModo = () => {
+    setError(null);
+    setModo((prev) => (prev === 'login' ? 'register' : 'login'));
   };
 
   return (
     <div className="fixed inset-0 w-screen h-screen bg-black/75 flex items-center justify-center z-[1000] backdrop-blur-xs">
-      <div className="bg-bg-tarjeta border border-borde rounded-2xl p-8 w-full max-w-[400px] shadow-2xl text-texto-principal">
+      <div className="bg-bg-tarjeta border border-borde rounded-2xl p-8 w-full max-w-[420px] shadow-2xl text-texto-principal">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="m-0 text-xl font-bold">Iniciar Sesión</h2>
-          <button 
+          <h2 className="m-0 text-xl font-bold">
+            {modo === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'}
+          </h2>
+          <button
             onClick={onCerrar}
-            className="bg-transparent border-none text-texto-secundario text-lg cursor-pointer"
+            className="bg-transparent border-none text-texto-secundario text-lg cursor-pointer hover:text-texto-principal"
           >
             ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {error && (
+          <div className="mb-4 rounded-lg border border-[#EF4444]/40 bg-[#EF4444]/10 px-3.5 py-2.5 text-xs text-[#FCA5A5]">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+          {modo === 'register' && (
+            <div>
+              <label className={labelClass}>Nombre de Usuario</label>
+              <input
+                type="text"
+                value={nombreUsuario}
+                onChange={(e) => setNombreUsuario(e.target.value)}
+                placeholder="Ej. gamer_pro99"
+                className={inputClass}
+              />
+            </div>
+          )}
+
           <div>
-            <label className="block text-[13px] text-texto-secundario mb-1.5">
-              Nombre de Usuario
-            </label>
-            <input 
-              type="text" 
-              value={usuario}
-              onChange={(e) => setUsuario(e.target.value)}
-              placeholder="Ej. Santiago"
-              required
-              className="w-full py-3 px-3.5 bg-bg-superficie border border-borde rounded-lg text-texto-principal text-sm box-border outline-none focus:border-primario"
+            <label className={labelClass}>Correo Electrónico</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="tu@email.com"
+              className={inputClass}
             />
           </div>
 
           <div>
-            <label className="block text-[13px] text-texto-secundario mb-1.5">
-              Contraseña
-            </label>
-            <input 
-              type="password" 
+            <label className={labelClass}>Contraseña</label>
+            <input
+              type="password"
               value={clave}
               onChange={(e) => setClave(e.target.value)}
               placeholder="••••••••"
-              required
-              className="w-full py-3 px-3.5 bg-bg-superficie border border-borde rounded-lg text-texto-principal text-sm box-border outline-none focus:border-primario"
+              className={inputClass}
             />
           </div>
 
-          <button 
+          <button
             type="submit"
-            className="mt-2 bg-exito text-white border-none p-3 rounded-lg font-bold text-[15px] cursor-pointer transition-opacity duration-200 hover:opacity-90"
+            disabled={enviando}
+            className="mt-2 bg-exito text-white border-none p-3 rounded-lg font-bold text-[15px] cursor-pointer transition-opacity duration-200 hover:opacity-90 disabled:opacity-50"
           >
-            Entrar a Nova Games
+            {enviando
+              ? 'Procesando...'
+              : modo === 'login'
+                ? 'Entrar a Nova Games'
+                : 'Registrarme en Nova Games'}
           </button>
         </form>
+
+        <div className="mt-5 text-center text-xs text-texto-secundario">
+          {modo === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}{' '}
+          <button
+            type="button"
+            onClick={alternarModo}
+            className="bg-transparent border-none p-0 text-primario font-semibold cursor-pointer hover:underline"
+          >
+            {modo === 'login' ? 'Regístrate aquí' : 'Inicia sesión'}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 ---
 name: react-current
-description: Modern React 19 practices for 2026 — Server Components, Server Actions, useActionState, useOptimistic, use(), TypeScript, performance, and clean component architecture. Use when writing, reviewing, or refactoring React (or Next.js App Router) code.
+description: Modern React 19 practices for 2026 — Server Components, useActionState, useOptimistic, use(), TypeScript, performance, and clean component architecture. Use when writing, reviewing, or refactoring React (or Next.js App Router) code.
 ---
 
 # React Current Practices (2026)
@@ -42,20 +42,11 @@ You are an expert React 19 engineer. Prefer the modern patterns below. Inspect t
 - For client caching, polling, infinite lists, offline → use the project’s existing solution (TanStack Query / SWR) if present.
 
 ### Mutations
-- Prefer **Server Actions** (`"use server"`) for form submissions and mutations.
 - Use:
   - `useActionState` for form state + pending + result
   - `useFormStatus` (in a child) for submit-button pending state
   - `useOptimistic` for instant UI feedback that auto-reverts on failure
   - `useTransition` when you own the `setState` and want non-blocking updates
-
-**Server Action checklist (every time):**
-1. Authenticate
-2. Authorize for the specific resource
-3. Validate input with a schema (Zod or project equivalent) — never trust FormData/strings
-4. Perform the mutation
-5. Revalidate / invalidate caches as needed
-6. Return serializable, non-leaky results
 
 ## Hooks Best Practices
 
@@ -70,7 +61,7 @@ You are an expert React 19 engineer. Prefer the modern patterns below. Inspect t
 
 ```tsx
 // Prefer this shape over manual useState + onSubmit + loading flags
-const [state, formAction, isPending] = useActionState(serverAction, initialState);
+const [state, formAction, isPending] = useActionState(submitAction, initialState);
 
 <form action={formAction}>
   {/* fields */}

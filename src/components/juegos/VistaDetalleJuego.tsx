@@ -1,13 +1,14 @@
 // src/components/juegos/VistaDetalleJuego.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import type { Juego } from '../../types';
+import type { Juego, Usuario } from '../../types';
+import { RequisitosSistema } from './RequisitosSistema';
 
 interface VistaDetalleJuegoProps {
   juegos: Juego[];
-  usuarioLogueado: string | null;
+  usuarioLogueado: Usuario | null;
   onAbrirLogin: () => void;
-  onComprarJuego: (juegoComprado: Juego) => void;
+  onComprarJuego: (juegoComprado: Juego) => Promise<void>;
   juegosEnBiblioteca: number[];
 }
 
@@ -19,6 +20,9 @@ export const VistaDetalleJuego: React.FC<VistaDetalleJuegoProps> = ({
   juegosEnBiblioteca 
 }) => {
   const { id } = useParams<{ id: string }>();
+  const [comprando, setComprando] = useState(false);
+  const [errorCompra, setErrorCompra] = useState<string | null>(null);
+  const [mensajeCompra, setMensajeCompra] = useState<string | null>(null);
   const juegoEncontrado = juegos.find(j => j.id === Number(id));
 
   if (!juegoEncontrado) {
@@ -34,17 +38,29 @@ export const VistaDetalleJuego: React.FC<VistaDetalleJuegoProps> = ({
 
   const yaEnBiblioteca = juegosEnBiblioteca.includes(juegoEncontrado.id);
 
-  const manejarCompra = () => {
+  const manejarCompra = async () => {
+    setErrorCompra(null);
+    setMensajeCompra(null);
+
     if (!usuarioLogueado) {
       onAbrirLogin();
       return;
     }
-    if (yaEnBiblioteca) {
-      alert(`Ya tienes el juego ${juegoEncontrado.titulo} en tu biblioteca.`);
+    if (yaEnBiblioteca || comprando) {
       return;
     }
-    onComprarJuego(juegoEncontrado);
-    alert(`¡Compra exitosa! ${juegoEncontrado.titulo} se ha añadido a tu Biblioteca.`);
+
+    setComprando(true);
+    try {
+      await onComprarJuego(juegoEncontrado);
+      setMensajeCompra(`¡Compra exitosa! ${juegoEncontrado.titulo} se ha añadido a tu Biblioteca.`);
+    } catch (err) {
+      setErrorCompra(
+        err instanceof Error ? err.message : 'No se pudo completar la compra.'
+      );
+    } finally {
+      setComprando(false);
+    }
   };
 
   return (
@@ -88,40 +104,36 @@ export const VistaDetalleJuego: React.FC<VistaDetalleJuegoProps> = ({
 
             <button 
               onClick={manejarCompra}
-              className={`w-full text-white border-none p-3.5 rounded-[30px] font-extrabold text-[15px] shadow-[0_4px_15px_rgba(16,185,129,0.3)] transition-transform duration-200 ${
+              disabled={yaEnBiblioteca || comprando}
+              className={`w-full text-white border-none p-3.5 rounded-[30px] font-extrabold text-[15px] shadow-[0_4px_15px_rgba(16,185,129,0.3)] transition-transform duration-200 disabled:opacity-70 ${
                 yaEnBiblioteca ? 'bg-[#334155] cursor-default' : 'bg-exito cursor-pointer'
               }`}
             >
-              {yaEnBiblioteca ? 'En tu Biblioteca' : usuarioLogueado ? 'Comprar y Añadir a Biblioteca' : 'Inicia sesión para comprar'}
+              {comprando
+                ? 'Procesando compra...'
+                : yaEnBiblioteca
+                  ? 'En tu Biblioteca'
+                  : usuarioLogueado
+                    ? 'Comprar y Añadir a Biblioteca'
+                    : 'Inicia sesión para comprar'}
             </button>
+
+            {errorCompra && (
+              <p className="mt-3 mb-0 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-400">
+                {errorCompra}
+              </p>
+            )}
+            {mensajeCompra && (
+              <p className="mt-3 mb-0 rounded-lg border border-exito/40 bg-exito/10 px-3 py-2 text-xs text-exito">
+                {mensajeCompra}
+              </p>
+            )}
           </div>
         </div>
       </div>
 
       {/* 💻 Requerimientos del Sistema */}
-      <div className="bg-bg-tarjeta p-[30px] rounded-2xl border border-borde">
-        <h3 className="m-0 mb-4 text-lg text-texto-principal border-b border-borde pb-2.5">
-          Requerimientos del Sistema (PC)
-        </h3>
-        <div className="grid grid-cols-2 gap-5 text-[13px] text-texto-secundario leading-relaxed">
-          <div>
-            <strong className="text-texto-principal block mb-1.5">Mínimos:</strong>
-            • SO: Windows 10 de 64 bits<br />
-            • Procesador: Core i5-3570K o FX-8310<br />
-            • Memoria RAM: 8 GB<br />
-            • Gráficos: GTX 780 o RX 470<br />
-            • Almacenamiento: 70 GB disponibles
-          </div>
-          <div>
-            <strong className="text-texto-principal block mb-1.5">Recomendados:</strong>
-            • SO: Windows 10/11 de 64 bits<br />
-            • Procesador: Core i7-4790 o Ryzen 3 3200G<br />
-            • Memoria RAM: 12 GB<br />
-            • Gráficos: GTX 1060 o R9 Fury<br />
-            • Almacenamiento: 70 GB SSD
-          </div>
-        </div>
-      </div>
+      <RequisitosSistema />
     </div>
   );
 };

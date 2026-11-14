@@ -1,0 +1,12 @@
+C:\dev\Hilet\NovaGames-ecommerce-videojuegos\obj\Debug\net10.0\APIVideoJuegos.csproj.AssemblyReference.cache
+C:\dev\Hilet\NovaGames-ecommerce-videojuegos\obj\Debug\net10.0\rpswa.dswa.cache.json
+C:\dev\Hilet\NovaGames-ecommerce-videojuegos\obj\Debug\net10.0\APIVideoJuegos.GeneratedMSBuildEditorConfig.editorconfig
+C:\dev\Hilet\NovaGames-ecommerce-videojuegos\obj\Debug\net10.0\APIVideoJuegos.AssemblyInfoInputs.cache
+C:\dev\Hilet\NovaGames-ecommerce-videojuegos\obj\Debug\net10.0\APIVideoJuegos.AssemblyInfo.cs
+C:\dev\Hilet\NovaGames-ecommerce-videojuegos\obj\Debug\net10.0\APIVideoJuegos.csproj.CoreCompileInputs.cache
+C:\dev\Hilet\NovaGames-ecommerce-videojuegos\obj\Debug\net10.0\APIVideoJuegos.MvcApplicationPartsAssemblyInfo.cs
+C:\dev\Hilet\NovaGames-ecommerce-videojuegos\obj\Debug\net10.0\APIVideoJuegos.MvcApplicationPartsAssemblyInfo.cache
+C:\dev\Hilet\NovaGames-ecommerce-videojuegos\obj\Debug\net10.0\APIVideoJuegos.sourcelink.json
+C:\dev\Hilet\NovaGames-ecommerce-videojuegos\obj\Debug\net10.0\APIVideoJuegos.dll
+C:\dev\Hilet\NovaGames-ecommerce-videojuegos\obj\Debug\net10.0\refint\APIVideoJuegos.dll
+C:\dev\Hilet\NovaGames-ecommerce-videojuegos\obj\Debug\net10.0\APIVideoJuegos.pdb

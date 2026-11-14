@@ -26,3 +26,18 @@
     -moz-osx-font-smoothing: grayscale;
   }
 }
+
+@keyframes nova-marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-nova-marquee {
+  display: flex;
+  width: max-content;
+  animation: nova-marquee 24s linear infinite;
+}

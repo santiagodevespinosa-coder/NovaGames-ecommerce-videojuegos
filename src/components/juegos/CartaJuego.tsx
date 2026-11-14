@@ -13,10 +13,10 @@ export const CartaJuego: React.FC<CartaJuegoProps> = ({ juego }) => {
   return (
     <div 
       onClick={() => navigate(`/juego/${juego.id}`)}
-      className="bg-bg-tarjeta border border-borde rounded-[14px] overflow-hidden cursor-pointer shadow-[0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 ease-out flex flex-col h-[360px] relative hover:-translate-y-1.5 hover:border-primario hover:shadow-[0_20px_30px_-10px_rgba(56,189,248,0.3)]"
+      className="bg-bg-tarjeta border border-borde rounded-[14px] overflow-hidden cursor-pointer shadow-[0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 ease-out flex flex-col h-[440px] relative hover:-translate-y-1.5 hover:border-primario hover:shadow-[0_20px_30px_-10px_rgba(56,189,248,0.3)]"
     >
       {/* 🖼️ Contenedor de la Imagen con posición absoluta para forzar el tamaño */}
-      <div className="w-full h-[280px] bg-bg-principal relative overflow-hidden">
+      <div className="w-full h-[355px] bg-bg-principal relative overflow-hidden">
         {juego.imagenUrl ? (
           <img 
             src={juego.imagenUrl} 
