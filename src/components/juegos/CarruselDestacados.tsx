@@ -1,10 +1,14 @@
 // src/components/juegos/CarruselDestacados.tsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getPortraitImageUrl } from '../../utils/gameImages';
+import { playClick } from '../../utils/novaAudio';
+import { navigateWithTransition } from '../../utils/viewTransition';
 import type { Juego } from '../../types';
 
 interface CarruselProps {
   juegos: Juego[];
+  onActiveGameChange?: (imagenUrl?: string) => void;
 }
 
 interface BladeStyle {
@@ -41,7 +45,10 @@ const BLADE_STYLES: BladeStyle[] = [
   },
 ];
 
-export const CarruselDestacados: React.FC<CarruselProps> = ({ juegos }) => {
+export const CarruselDestacados: React.FC<CarruselProps> = ({
+  juegos,
+  onActiveGameChange,
+}) => {
   const [indiceActual, setIndiceActual] = useState(0);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [spotlightPos, setSpotlightPos] = useState<{ x: number; y: number }>({
@@ -51,6 +58,21 @@ export const CarruselDestacados: React.FC<CarruselProps> = ({ juegos }) => {
   const navigate = useNavigate();
 
   const destacados = juegos.slice(0, 5);
+  const indiceSeguro = destacados.length > 0 ? indiceActual % destacados.length : 0;
+  const activeAuraUrl =
+    hoveredIdx !== null
+      ? destacados[hoveredIdx]?.imagenUrl
+      : destacados[indiceSeguro]?.imagenUrl;
+
+  useEffect(() => {
+    onActiveGameChange?.(activeAuraUrl);
+  }, [activeAuraUrl, onActiveGameChange]);
+
+  useEffect(() => {
+    return () => {
+      onActiveGameChange?.(undefined);
+    };
+  }, [onActiveGameChange]);
 
   useEffect(() => {
     if (destacados.length <= 1 || hoveredIdx !== null) return;
@@ -62,14 +84,15 @@ export const CarruselDestacados: React.FC<CarruselProps> = ({ juegos }) => {
 
   if (destacados.length === 0) return null;
 
-  const indiceSeguro = indiceActual % destacados.length;
   const juegoActual = destacados[indiceSeguro];
 
   const irAnterior = () => {
+    playClick();
     setIndiceActual((prev) => (prev - 1 + destacados.length) % destacados.length);
   };
 
   const irSiguiente = () => {
+    playClick();
     setIndiceActual((prev) => (prev + 1) % destacados.length);
   };
 
@@ -123,6 +146,7 @@ export const CarruselDestacados: React.FC<CarruselProps> = ({ juegos }) => {
           const isSelected = idx === indiceSeguro;
           const isHovered = idx === hoveredIdx;
           const isDimmed = hoveredIdx !== null && !isHovered;
+          const portraitUrl = getPortraitImageUrl(juego.imagenUrl);
 
           return (
             <button
@@ -156,9 +180,9 @@ export const CarruselDestacados: React.FC<CarruselProps> = ({ juegos }) => {
                 className={`relative w-full overflow-hidden bg-bg-tarjeta transition-all duration-500 ${style.heightClass}`}
                 style={{ clipPath: style.clipPath }}
               >
-                {juego.imagenUrl ? (
+                {portraitUrl ? (
                   <img
-                    src={juego.imagenUrl}
+                    src={portraitUrl}
                     alt={juego.titulo}
                     className={`h-full w-full object-cover transition-transform duration-700 ${
                       isHovered
@@ -239,7 +263,10 @@ export const CarruselDestacados: React.FC<CarruselProps> = ({ juegos }) => {
           </span>
           <button
             type="button"
-            onClick={() => navigate(`/juego/${juegoActual.id}`)}
+            onClick={() => {
+              playClick();
+              navigateWithTransition(navigate, `/juego/${juegoActual.id}`);
+            }}
             className="nova-btn-primary text-white py-3 px-7 rounded-[30px] font-bold text-sm cursor-pointer"
           >
             Ver Detalles y Comprar

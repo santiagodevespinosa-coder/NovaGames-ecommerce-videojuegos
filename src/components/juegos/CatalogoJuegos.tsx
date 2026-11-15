@@ -11,6 +11,7 @@ interface CatalogoJuegosProps {
   filtroBusqueda: string;
   cargando?: boolean;
   juegosEnBiblioteca?: number[];
+  onActiveGameChange?: (imagenUrl?: string) => void;
 }
 
 export const CatalogoJuegos: React.FC<CatalogoJuegosProps> = ({
@@ -19,6 +20,7 @@ export const CatalogoJuegos: React.FC<CatalogoJuegosProps> = ({
   filtroBusqueda,
   cargando = false,
   juegosEnBiblioteca = [],
+  onActiveGameChange,
 }) => {
   const [generoSeleccionado, setGeneroSeleccionado] = useState<number | null>(null);
 
@@ -38,10 +40,10 @@ export const CatalogoJuegos: React.FC<CatalogoJuegosProps> = ({
     <>
       {/* 🌟 Blade Pillars Full-Bleed Destacados (Se oculta si hay búsqueda o filtro activo) */}
       {!filtroBusqueda && generoSeleccionado === null && (
-        <CarruselDestacados juegos={juegos} />
+        <CarruselDestacados juegos={juegos} onActiveGameChange={onActiveGameChange} />
       )}
 
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-[1600px] mx-auto">
 
       {/* 🎯 Filtro por Género */}
       {generos.length > 0 && (
@@ -107,13 +109,10 @@ export const CatalogoJuegos: React.FC<CatalogoJuegosProps> = ({
           {Array.from({ length: 6 }).map((_, idx) => (
             <div
               key={idx}
-              className="h-[440px] rounded-[14px] bg-bg-tarjeta border border-borde overflow-hidden animate-pulse flex flex-col"
+              className="nova-blade-chamfer h-[440px] bg-bg-tarjeta border border-primario/15 overflow-hidden animate-pulse flex flex-col justify-end p-4 gap-2"
             >
-              <div className="h-[335px] bg-bg-superficie" />
-              <div className="p-4 flex-1 flex flex-col justify-center gap-2">
-                <div className="h-4 w-3/4 rounded bg-bg-superficie" />
-                <div className="h-3 w-1/3 rounded bg-bg-superficie" />
-              </div>
+              <div className="h-4 w-3/4 rounded bg-bg-superficie" />
+              <div className="h-3 w-1/3 rounded bg-bg-superficie" />
             </div>
           ))}
         </div>

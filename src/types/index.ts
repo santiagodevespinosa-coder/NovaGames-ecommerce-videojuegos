@@ -6,6 +6,9 @@ export interface Juego {
   titulo: string;
   descripcion: string;
   precio: number;
+  precioBase?: number;
+  descuentoPorcentaje?: number;
+  fechaLanzamiento?: string | null;
   stock: number;
   imagenUrl?: string;
   trailerUrl?: string;

@@ -75,6 +75,18 @@ export function getGameTrailerUrl(titulo?: string, slug?: string): string | unde
 }
 
 /**
+ * Converts a Steam landscape URL (`library_hero.jpg` / `header.jpg`) into Steam's
+ * 600x900 portrait box art (`library_600x900_2x.jpg`) for vertical cards and pillars.
+ */
+export function getPortraitImageUrl(imagenUrl?: string): string | undefined {
+  if (!imagenUrl) return undefined;
+  return imagenUrl.replace(
+    /\/(library_hero|header)\.jpg(\?.*)?$/,
+    '/library_600x900_2x.jpg$2'
+  );
+}
+
+/**
  * Calculates the final price of a game after applying its discount percentage.
  */
 export function calcularPrecioFinal(precioBase: number, descuentoPorcentaje: number): number {

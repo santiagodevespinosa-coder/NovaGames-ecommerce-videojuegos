@@ -114,3 +114,29 @@
 .nova-blade-chamfer {
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
 }
+
+.nova-holo-scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.03) 0px,
+    rgba(255, 255, 255, 0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+@keyframes nova-ambilight {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1.08);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(1.13);
+  }
+}
+
+.animate-nova-ambilight {
+  animation: nova-ambilight 5s ease-in-out infinite;
+}

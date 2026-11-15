@@ -1,6 +1,6 @@
 // src/App.tsx
 import { useEffect, useState } from 'react';
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { CatalogoJuegos } from './components/juegos/CatalogoJuegos';
 import { BibliotecaJuegos, type JuegoBiblioteca } from './components/juegos/BibliotecaJuegos';
 import { VistaDetalleJuego } from './components/juegos/VistaDetalleJuego';
@@ -8,24 +8,16 @@ import { PanelLogin } from './components/auth/PanelLogin';
 import { PanelAdmin } from './components/admin/PanelAdmin';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
-import { ConceptMaximalistPage } from './components/concept/ConceptMaximalistPage';
-import { ConceptFuturisticPage } from './components/concept/ConceptFuturisticPage';
-import { ConceptStrangePage } from './components/concept/ConceptStrangePage';
-import { ConceptArtGalleryPage } from './components/concept/ConceptArtGalleryPage';
-import { ConceptEnchantedPage } from './components/concept/ConceptEnchantedPage';
-import { ConceptAmalgamPage } from './components/concept/ConceptAmalgamPage';
-import { ConceptBladesPage } from './components/concept/ConceptBladesPage';
-import { ConceptGlassPage } from './components/concept/ConceptGlassPage';
-import { ConceptNeuPage } from './components/concept/ConceptNeuPage';
-import { ConceptCyberpunkPage } from './components/concept/ConceptCyberpunkPage';
-import { Concept3DLauncherPage } from './components/concept/Concept3DLauncherPage';
+import { NovaJumpPalette } from './components/layout/NovaJumpPalette';
+import { KeycardMintModal } from './components/juegos/KeycardMintModal';
+import { getSfxEnabled, playClick, setSfxEnabled } from './utils/novaAudio';
 import { juegosService } from './services/juegosService';
 import { generosService } from './services/generosService';
 import { authService } from './services/authService';
 import { bibliotecaService } from './services/bibliotecaService';
 import { ordenesService } from './services/ordenesService';
 import { TOKEN_STORAGE_KEY } from './services/apiClient';
-import type { BibliotecaItem, Genero, Juego, Usuario } from './types';
+import type { BibliotecaItem, Genero, Juego, OrdenResponse, Usuario } from './types';
 
 const FALLBACK_JUEGOS: Juego[] = [
   { id: 1, titulo: 'Cyberpunk 2077', descripcion: 'Un RPG de acción y aventura en mundo abierto ambientado en Night City.', precio: 59.99, stock: 15, categoriaId: 1, desarrolladorId: 1, imagenUrl: '/images/imagenes-juegos/imagen_cyberpunk_2077.webp' },
@@ -43,10 +35,32 @@ export function App() {
   const [mostrarModalLogin, setMostrarModalLogin] = useState<boolean>(false);
   const [modoAuthModal, setModoAuthModal] = useState<'login' | 'register'>('login');
   const [sidebarAbierto, setSidebarAbierto] = useState<boolean>(false);
+  const [auraImageUrl, setAuraImageUrl] = useState<string | undefined>(undefined);
+  const [paletteOpen, setPaletteOpen] = useState<boolean>(false);
+  const [sfxEnabled, setSfxState] = useState<boolean>(() => getSfxEnabled());
+  const [mintedGame, setMintedGame] = useState<Juego | null>(null);
+
+  const handleToggleSfx = () => {
+    setSfxState((prev) => {
+      const next = !prev;
+      setSfxEnabled(next);
+      if (next) playClick();
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const isConceptRoute = pathname.startsWith('/concept');
 
   const [juegos, setJuegos] = useState<Juego[]>(FALLBACK_JUEGOS);
   const [cargandoJuegos, setCargandoJuegos] = useState<boolean>(true);
@@ -100,8 +114,9 @@ export function App() {
     };
   }, []);
 
-  // 📚 Estado de la Biblioteca del usuario
+  // 📚 Estado de la Biblioteca del usuario y órdenes
   const [bibliotecaItems, setBibliotecaItems] = useState<BibliotecaItem[]>([]);
+  const [ordenesUsuario, setOrdenesUsuario] = useState<OrdenResponse[]>([]);
   const [juegosInstalados, setJuegosInstalados] = useState<Record<number, boolean>>({});
 
   // 🔄 Revalidar sesión contra /api/auth/me al cargar si existe JWT
@@ -130,22 +145,26 @@ export function App() {
     };
   }, []);
 
-  // 📚 Cargar biblioteca real del usuario cuando inicia sesión
+  // 📚 Cargar biblioteca y órdenes reales del usuario cuando inicia sesión
   const idUsuarioLogueado = usuarioLogueado?.idUsuario;
   useEffect(() => {
     if (idUsuarioLogueado === undefined) return;
 
     let cancelled = false;
-    bibliotecaService
-      .obtenerPorUsuario(idUsuarioLogueado)
-      .then((items) => {
+    Promise.all([
+      bibliotecaService.obtenerPorUsuario(idUsuarioLogueado),
+      ordenesService.obtenerPorUsuario(idUsuarioLogueado).catch(() => []),
+    ])
+      .then(([items, ordenes]) => {
         if (!cancelled) {
           setBibliotecaItems(items);
+          setOrdenesUsuario(ordenes);
         }
       })
       .catch(() => {
         if (!cancelled) {
           setBibliotecaItems([]);
+          setOrdenesUsuario([]);
         }
       });
 
@@ -162,6 +181,7 @@ export function App() {
           titulo: juego?.titulo ?? `Juego #${item.idJuego}`,
           imagenUrl: juego?.imagenUrl,
           horasJugadas: item.horasJugadas,
+          fechaAdquisicion: item.fechaAdquisicion,
           instalado: Boolean(juegosInstalados[item.idJuego]),
         };
       })
@@ -172,6 +192,20 @@ export function App() {
       ...prev,
       [idJuego]: !prev[idJuego],
     }));
+  };
+
+  const handleRegistrarHoras = async (idJuego: number, nuevasHoras: number) => {
+    if (!usuarioLogueado) return;
+    await bibliotecaService.actualizarHoras(
+      usuarioLogueado.idUsuario,
+      idJuego,
+      nuevasHoras
+    );
+    setBibliotecaItems((prev) =>
+      prev.map((item) =>
+        item.idJuego === idJuego ? { ...item, horasJugadas: nuevasHoras } : item
+      )
+    );
   };
 
   // 🛒 Función de compra: crea orden en el backend y actualiza la biblioteca
@@ -195,10 +229,13 @@ export function App() {
       )
     );
 
-    const itemsActualizados = await bibliotecaService.obtenerPorUsuario(
-      usuarioLogueado.idUsuario
-    );
+    const [itemsActualizados, ordenesActualizadas] = await Promise.all([
+      bibliotecaService.obtenerPorUsuario(usuarioLogueado.idUsuario),
+      ordenesService.obtenerPorUsuario(usuarioLogueado.idUsuario).catch(() => ordenesUsuario),
+    ]);
     setBibliotecaItems(itemsActualizados);
+    setOrdenesUsuario(ordenesActualizadas);
+    setMintedGame(juegoComprado);
   };
 
   // 🚪 Función de Cierre de Sesión (Logout)
@@ -206,6 +243,7 @@ export function App() {
     authService.logout();
     setUsuarioLogueado(null);
     setBibliotecaItems([]);
+    setOrdenesUsuario([]);
     navigate('/');
   };
 
@@ -225,6 +263,7 @@ export function App() {
             filtroBusqueda={terminoBusqueda}
             cargando={cargandoJuegos}
             juegosEnBiblioteca={biblioteca.map((j) => j.id)}
+            onActiveGameChange={setAuraImageUrl}
           />
         }
       />
@@ -234,6 +273,9 @@ export function App() {
           <BibliotecaJuegos
             juegosBiblioteca={biblioteca}
             onToggleInstalacion={handleToggleInstalacion}
+            onRegistrarHoras={handleRegistrarHoras}
+            ordenes={ordenesUsuario}
+            juegosCatalogo={juegos}
           />
         }
       />
@@ -265,69 +307,26 @@ export function App() {
           )
         }
       />
-      <Route
-        path="/concept"
-        element={<ConceptMaximalistPage juegos={juegos} />}
-      />
-      <Route
-        path="/concept-futuristic"
-        element={<ConceptFuturisticPage juegos={juegos} />}
-      />
-      <Route
-        path="/concept-strange"
-        element={<ConceptStrangePage juegos={juegos} />}
-      />
-      <Route
-        path="/concept-art"
-        element={<ConceptArtGalleryPage juegos={juegos} />}
-      />
-      <Route
-        path="/concept-enchanted"
-        element={<ConceptEnchantedPage juegos={juegos} />}
-      />
-      <Route
-        path="/concept-amalgam"
-        element={<ConceptAmalgamPage juegos={juegos} />}
-      />
-      <Route
-        path="/concept-blades"
-        element={<ConceptBladesPage juegos={juegos} />}
-      />
-      <Route
-        path="/concept-glass"
-        element={<ConceptGlassPage juegos={juegos} />}
-      />
-      <Route
-        path="/concept-neu"
-        element={<ConceptNeuPage juegos={juegos} />}
-      />
-      <Route
-        path="/concept-cyberpunk"
-        element={<ConceptCyberpunkPage juegos={juegos} />}
-      />
-      <Route
-        path="/concept-3d"
-        element={<Concept3DLauncherPage juegos={juegos} />}
-      />
     </Routes>
   );
 
-  if (isConceptRoute) {
-    return (
-      <main className="grid min-h-screen w-full">
-        {appRoutes}
-      </main>
-    );
-  }
-
   return (
-    <div className="flex min-h-screen nova-grid-bg text-texto-principal font-sans">
+    <div className="relative flex min-h-screen nova-grid-bg text-texto-principal font-sans">
+      {auraImageUrl && (
+        <div
+          aria-hidden="true"
+          className="fixed inset-0 pointer-events-none z-0 opacity-[0.14] blur-[110px] bg-cover bg-center transition-all duration-1000 scale-110"
+          style={{ backgroundImage: `url(${auraImageUrl})` }}
+        />
+      )}
+
       <Sidebar
         isOpen={sidebarAbierto}
         onClose={() => setSidebarAbierto(false)}
+        juegosBiblioteca={biblioteca}
       />
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="relative z-10 flex-1 flex flex-col min-w-0">
         <Header
           terminoBusqueda={terminoBusqueda}
           onBusquedaChange={setTerminoBusqueda}
@@ -335,6 +334,12 @@ export function App() {
           onAbrirLogin={abrirModalAuth}
           onCerrarSesion={handleCerrarSesion}
           onAbrirMenu={() => setSidebarAbierto(true)}
+          onAbrirPalette={() => {
+            playClick();
+            setPaletteOpen(true);
+          }}
+          sfxEnabled={sfxEnabled}
+          onToggleSfx={handleToggleSfx}
         />
 
         <main className="p-4 sm:p-6 lg:p-10 flex-1 box-border overflow-y-auto">
@@ -381,6 +386,23 @@ export function App() {
             setMostrarModalLogin(false);
           }}
           onCerrar={() => setMostrarModalLogin(false)}
+        />
+      )}
+
+      <NovaJumpPalette
+        isOpen={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        juegos={juegos}
+        usuarioLogueado={usuarioLogueado}
+        sfxEnabled={sfxEnabled}
+        onToggleSfx={handleToggleSfx}
+      />
+
+      {mintedGame && (
+        <KeycardMintModal
+          key={mintedGame.id}
+          juego={mintedGame}
+          onClose={() => setMintedGame(null)}
         />
       )}
     </div>

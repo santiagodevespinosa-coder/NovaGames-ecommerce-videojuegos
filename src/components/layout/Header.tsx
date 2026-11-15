@@ -1,6 +1,8 @@
 // src/components/layout/Header.tsx
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { Usuario } from '../../types';
+import { playClick } from '../../utils/novaAudio';
+import { navigateWithTransition } from '../../utils/viewTransition';
 
 interface HeaderProps {
   terminoBusqueda: string;
@@ -9,6 +11,9 @@ interface HeaderProps {
   onAbrirLogin: (modo?: 'login' | 'register') => void;
   onCerrarSesion: () => void;
   onAbrirMenu?: () => void;
+  onAbrirPalette?: () => void;
+  sfxEnabled?: boolean;
+  onToggleSfx?: () => void;
 }
 
 export function Header({
@@ -18,16 +23,27 @@ export function Header({
   onAbrirLogin,
   onCerrarSesion,
   onAbrirMenu,
+  onAbrirPalette,
+  sfxEnabled = false,
+  onToggleSfx,
 }: HeaderProps) {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const puedeAdministrar =
     usuarioLogueado?.tipoUsuario === 'Admin' ||
     usuarioLogueado?.tipoUsuario === 'Desarrollador';
 
+  const handleSearchChange = (valor: string) => {
+    onBusquedaChange(valor);
+    if (valor.trim() && pathname !== '/') {
+      navigate('/');
+    }
+  };
+
   return (
-    <header className="relative z-30 flex flex-wrap justify-between items-center gap-3 py-3.5 px-4 sm:px-6 lg:px-8 bg-[#070B14]/70 backdrop-blur-md border-b border-primario/15">
-      <div className="flex items-center gap-3 flex-1 min-w-[180px] max-w-[360px]">
+    <header className="sticky top-0 z-30 flex flex-wrap justify-between items-center gap-3 py-3.5 px-4 sm:px-6 lg:px-8 bg-[#070B14]/82 backdrop-blur-xl border-b border-primario/15">
+      <div className="flex items-center gap-3 flex-1 min-w-[200px] max-w-[420px]">
         {onAbrirMenu && (
           <button
             type="button"
@@ -40,21 +56,72 @@ export function Header({
             </svg>
           </button>
         )}
-        <input
-          type="text"
-          placeholder="Search store..."
-          value={terminoBusqueda}
-          onChange={(e) => onBusquedaChange(e.target.value)}
-          className="nova-blade-chamfer w-full py-2.5 px-5 bg-[#0E1626]/90 border border-primario/25 text-texto-principal text-[13px] outline-none box-border transition-colors focus:border-primario"
-        />
+        <div className="relative flex-1">
+          <input
+            type="text"
+            placeholder="Buscar en la tienda..."
+            value={terminoBusqueda}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="nova-blade-chamfer w-full py-2.5 pl-5 pr-9 bg-[#0E1626]/90 border border-primario/25 text-texto-principal text-[13px] outline-none box-border transition-colors focus:border-primario"
+          />
+          {terminoBusqueda && (
+            <button
+              type="button"
+              onClick={() => {
+                playClick();
+                onBusquedaChange('');
+              }}
+              aria-label="Limpiar búsqueda"
+              className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-0 text-texto-secundario hover:text-primario text-xs font-bold cursor-pointer p-1"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        {onAbrirPalette && (
+          <button
+            type="button"
+            onClick={onAbrirPalette}
+            title="Abrir NovaJump (Ctrl+K)"
+            className="hidden sm:inline-flex items-center gap-1.5 nova-blade-chamfer bg-[#0E1626]/90 border border-primario/25 hover:border-primario text-texto-secundario hover:text-primario px-3 py-2 font-mono text-[11px] font-bold shrink-0 cursor-pointer transition-colors"
+          >
+            <span>Jump</span>
+            <kbd className="text-[10px] text-primario">Ctrl+K</kbd>
+          </button>
+        )}
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+        {onToggleSfx && (
+          <button
+            type="button"
+            onClick={onToggleSfx}
+            aria-pressed={sfxEnabled}
+            title="Audio UI Sintetizado"
+            className={`nova-blade-chamfer inline-flex items-center gap-1.5 px-3 py-2 font-mono text-[11px] font-bold border cursor-pointer transition-colors ${
+              sfxEnabled
+                ? 'bg-primario/15 border-primario/50 text-primario'
+                : 'bg-[#0E1626]/80 border-borde text-texto-secundario hover:text-texto-principal'
+            }`}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+              {sfxEnabled ? (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5L6 9H2v6h4l5 4V5zm4.54 3.46a5 5 0 010 7.07m2.83-9.9a9 9 0 010 12.73" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5L6 9H2v6h4l5 4V5zm12 4l-6 6m0-6l6 6" />
+              )}
+            </svg>
+            <span>{sfxEnabled ? 'SFX ON' : 'SFX OFF'}</span>
+          </button>
+        )}
         {usuarioLogueado ? (
           <div className="flex items-center gap-3">
             {puedeAdministrar && (
               <button
-                onClick={() => navigate('/admin')}
+                onClick={() => {
+                  playClick();
+                  navigateWithTransition(navigate, '/admin');
+                }}
                 className="nova-btn-outline nova-blade-chamfer text-primario py-2 px-5 font-bold text-[13px] cursor-pointer"
               >
                 Panel Admin
