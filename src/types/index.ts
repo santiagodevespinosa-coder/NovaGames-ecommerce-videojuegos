@@ -8,8 +8,10 @@ export interface Juego {
   precio: number;
   stock: number;
   imagenUrl?: string;
+  trailerUrl?: string;
   categoriaId: number;
   desarrolladorId: number;
+  generos?: Genero[];
 }
 
 export interface CrearJuegoDto {
@@ -18,6 +20,7 @@ export interface CrearJuegoDto {
   precio: number;
   stock: number;
   imagenUrl?: string;
+  trailerUrl?: string;
   categoriaId: number;
   desarrolladorId: number;
 }
@@ -71,6 +74,7 @@ export interface JuegoApi {
   idDesarrollador: number | null;
   idEditor: number | null;
   imagenUrl: string | null;
+  trailerUrl: string | null;
 }
 
 export interface CreateJuegoApiDto {
@@ -83,6 +87,7 @@ export interface CreateJuegoApiDto {
   idDesarrollador?: number | null;
   idEditor?: number | null;
   imagenUrl?: string | null;
+  trailerUrl?: string | null;
 }
 
 export interface BibliotecaItem {

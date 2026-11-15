@@ -41,3 +41,76 @@
   width: max-content;
   animation: nova-marquee 24s linear infinite;
 }
+
+.nova-grid-bg {
+  background-color: var(--color-bg-principal);
+  background-image:
+    linear-gradient(to right, rgba(56, 189, 248, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.045) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.nova-btn-primary {
+  background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 50%, #a855f7 100%);
+  border: 1px solid rgba(165, 243, 252, 0.45);
+  box-shadow:
+    0 0 18px rgba(56, 189, 248, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.nova-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+  box-shadow:
+    0 0 24px rgba(56, 189, 248, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.nova-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.nova-btn-outline {
+  background: rgba(14, 22, 38, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.08);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.nova-btn-outline:hover:not(:disabled) {
+  border-color: rgba(168, 85, 247, 0.8);
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.25);
+}
+
+/* Custom dark-navy & cyan scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #23324a #070b14;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #070b14;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #23324a;
+  border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #38bdf8;
+}
+
+.nova-blade-tab {
+  clip-path: polygon(0 0, 100% 0, 93% 100%, 0 100%);
+}
+
+.nova-blade-chamfer {
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+}

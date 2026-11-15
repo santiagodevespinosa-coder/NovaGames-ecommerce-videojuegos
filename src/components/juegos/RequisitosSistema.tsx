@@ -2,11 +2,11 @@
 
 export function RequisitosSistema() {
   return (
-    <div className="bg-bg-tarjeta p-[30px] rounded-2xl border border-borde">
+    <div className="bg-bg-tarjeta p-5 sm:p-[30px] rounded-2xl border border-borde">
       <h3 className="m-0 mb-4 text-lg text-texto-principal border-b border-borde pb-2.5">
         Requerimientos del Sistema (PC)
       </h3>
-      <div className="grid grid-cols-2 gap-5 text-[13px] text-texto-secundario leading-relaxed">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-[13px] text-texto-secundario leading-relaxed">
         <div>
           <strong className="text-texto-principal block mb-1.5">Mínimos:</strong>
           • SO: Windows 10 de 64 bits<br />

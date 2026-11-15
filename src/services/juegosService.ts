@@ -1,7 +1,7 @@
 // src/services/juegosService.ts
 import { apiFetch } from './apiClient';
 import type { ApiMessageResponse, CreateJuegoApiDto, Juego, JuegoApi } from '../types';
-import { calcularPrecioFinal, getGameImageUrl } from '../utils/gameImages';
+import { calcularPrecioFinal, getGameImageUrl, getGameTrailerUrl } from '../utils/gameImages';
 
 function mapJuegoApiToJuego(api: JuegoApi): Juego {
   return {
@@ -11,6 +11,7 @@ function mapJuegoApiToJuego(api: JuegoApi): Juego {
     precio: calcularPrecioFinal(api.precioBase, api.descuentoPorcentaje),
     stock: 99,
     imagenUrl: api.imagenUrl || getGameImageUrl(api.slug, api.titulo),
+    trailerUrl: api.trailerUrl || getGameTrailerUrl(api.titulo, api.slug),
     categoriaId: 1,
     desarrolladorId: api.idDesarrollador ?? 1,
   };

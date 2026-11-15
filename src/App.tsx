@@ -20,11 +20,12 @@ import { ConceptNeuPage } from './components/concept/ConceptNeuPage';
 import { ConceptCyberpunkPage } from './components/concept/ConceptCyberpunkPage';
 import { Concept3DLauncherPage } from './components/concept/Concept3DLauncherPage';
 import { juegosService } from './services/juegosService';
+import { generosService } from './services/generosService';
 import { authService } from './services/authService';
 import { bibliotecaService } from './services/bibliotecaService';
 import { ordenesService } from './services/ordenesService';
 import { TOKEN_STORAGE_KEY } from './services/apiClient';
-import type { BibliotecaItem, Juego, Usuario } from './types';
+import type { BibliotecaItem, Genero, Juego, Usuario } from './types';
 
 const FALLBACK_JUEGOS: Juego[] = [
   { id: 1, titulo: 'Cyberpunk 2077', descripcion: 'Un RPG de acción y aventura en mundo abierto ambientado en Night City.', precio: 59.99, stock: 15, categoriaId: 1, desarrolladorId: 1, imagenUrl: '/images/imagenes-juegos/imagen_cyberpunk_2077.webp' },
@@ -41,28 +42,44 @@ export function App() {
   });
   const [mostrarModalLogin, setMostrarModalLogin] = useState<boolean>(false);
   const [modoAuthModal, setModoAuthModal] = useState<'login' | 'register'>('login');
+  const [sidebarAbierto, setSidebarAbierto] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isConceptRoute = pathname.startsWith('/concept');
 
   const [juegos, setJuegos] = useState<Juego[]>(FALLBACK_JUEGOS);
+  const [cargandoJuegos, setCargandoJuegos] = useState<boolean>(true);
+  const [generos, setGeneros] = useState<Genero[]>([]);
   const [avisoJuegos, setAvisoJuegos] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
-    juegosService
-      .obtenerJuegos()
-      .then((data) => {
-        if (!cancelled) {
-          if (data.length > 0) {
-            setJuegos(data);
+    Promise.all([
+      juegosService.obtenerJuegos(),
+      generosService.obtenerGeneros().catch(() => [] as Genero[]),
+    ])
+      .then(async ([data, listaGeneros]) => {
+        if (cancelled) return;
+        setGeneros(listaGeneros);
+
+        if (data.length > 0) {
+          const juegosConGeneros = await Promise.all(
+            data.map(async (juego) => {
+              const juegoGeneros = await generosService
+                .obtenerGenerosPorJuego(juego.id)
+                .catch(() => [] as Genero[]);
+              return { ...juego, generos: juegoGeneros };
+            })
+          );
+          if (!cancelled) {
+            setJuegos(juegosConGeneros);
             setAvisoJuegos(null);
-          } else {
-            setJuegos(FALLBACK_JUEGOS);
-            setAvisoJuegos('Backend conectado, pero la tabla juegos está vacía en MySQL. Mostrando catálogo de ejemplo.');
           }
+        } else {
+          setJuegos(FALLBACK_JUEGOS);
+          setAvisoJuegos('Backend conectado, pero la tabla juegos está vacía en MySQL. Mostrando catálogo de ejemplo.');
         }
       })
       .catch((err: unknown) => {
@@ -70,6 +87,11 @@ export function App() {
           const message = err instanceof Error ? err.message : 'No se pudo conectar con la API.';
           setJuegos(FALLBACK_JUEGOS);
           setAvisoJuegos(`No se pudo cargar desde el backend (${message}). Mostrando catálogo de ejemplo.`);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setCargandoJuegos(false);
         }
       });
 
@@ -196,7 +218,15 @@ export function App() {
     <Routes>
       <Route
         path="/"
-        element={<CatalogoJuegos juegos={juegos} filtroBusqueda={terminoBusqueda} />}
+        element={
+          <CatalogoJuegos
+            juegos={juegos}
+            generos={generos}
+            filtroBusqueda={terminoBusqueda}
+            cargando={cargandoJuegos}
+            juegosEnBiblioteca={biblioteca.map((j) => j.id)}
+          />
+        }
       />
       <Route
         path="/biblioteca"
@@ -291,8 +321,11 @@ export function App() {
   }
 
   return (
-    <div className="flex min-h-screen bg-bg-principal text-texto-principal font-sans">
-      <Sidebar />
+    <div className="flex min-h-screen nova-grid-bg text-texto-principal font-sans">
+      <Sidebar
+        isOpen={sidebarAbierto}
+        onClose={() => setSidebarAbierto(false)}
+      />
 
       <div className="flex-1 flex flex-col min-w-0">
         <Header
@@ -301,9 +334,10 @@ export function App() {
           usuarioLogueado={usuarioLogueado}
           onAbrirLogin={abrirModalAuth}
           onCerrarSesion={handleCerrarSesion}
+          onAbrirMenu={() => setSidebarAbierto(true)}
         />
 
-        <main className="p-10 flex-1 box-border overflow-y-auto">
+        <main className="p-4 sm:p-6 lg:p-10 flex-1 box-border overflow-y-auto">
           {avisoJuegos && (
             <div className="mb-6 rounded-xl border border-primario/40 bg-primario/10 px-4 py-3 text-sm text-primario">
               {avisoJuegos}
@@ -311,6 +345,32 @@ export function App() {
           )}
           {appRoutes}
         </main>
+
+        <footer className="border-t border-borde bg-bg-superficie/70 backdrop-blur-sm px-4 sm:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-texto-secundario">
+          <div className="flex items-center gap-2">
+            <span className="font-extrabold tracking-wider text-primario uppercase">
+              NovaGames
+            </span>
+            <span>•</span>
+            <span>Catálogo Digital</span>
+          </div>
+          <div className="flex items-center gap-5">
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="bg-transparent border-none p-0 text-texto-secundario hover:text-primario cursor-pointer text-xs"
+            >
+              Tienda
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/biblioteca')}
+              className="bg-transparent border-none p-0 text-texto-secundario hover:text-primario cursor-pointer text-xs"
+            >
+              Mi Biblioteca
+            </button>
+          </div>
+        </footer>
       </div>
 
       {mostrarModalLogin && (

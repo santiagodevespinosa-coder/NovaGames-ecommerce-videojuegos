@@ -10,7 +10,7 @@ interface PanelLoginProps {
 }
 
 const inputClass =
-  'w-full py-3 px-3.5 bg-bg-superficie border border-borde rounded-lg text-texto-principal text-sm box-border outline-none focus:border-primario';
+  'w-full py-3 px-3.5 bg-bg-superficie/90 border border-borde rounded-lg text-texto-principal text-sm box-border outline-none transition-all focus:border-primario focus:shadow-[0_0_12px_rgba(56,189,248,0.2)]';
 const labelClass = 'block text-[13px] text-texto-secundario mb-1.5';
 
 export const PanelLogin: React.FC<PanelLoginProps> = ({
@@ -55,8 +55,8 @@ export const PanelLogin: React.FC<PanelLoginProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 w-screen h-screen bg-black/75 flex items-center justify-center z-[1000] backdrop-blur-xs">
-      <div className="bg-bg-tarjeta border border-borde rounded-2xl p-8 w-full max-w-[420px] shadow-2xl text-texto-principal">
+    <div className="fixed inset-0 w-screen h-screen bg-black/75 flex items-center justify-center z-[1000] backdrop-blur-sm p-4">
+      <div className="bg-bg-tarjeta/95 border border-primario/35 rounded-2xl p-6 sm:p-8 w-full max-w-[420px] shadow-[0_25px_70px_rgba(0,0,0,0.85),0_0_40px_rgba(56,189,248,0.12)] text-texto-principal">
         <div className="flex justify-between items-center mb-6">
           <h2 className="m-0 text-xl font-bold">
             {modo === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'}
@@ -114,7 +114,7 @@ export const PanelLogin: React.FC<PanelLoginProps> = ({
           <button
             type="submit"
             disabled={enviando}
-            className="mt-2 bg-exito text-white border-none p-3 rounded-lg font-bold text-[15px] cursor-pointer transition-opacity duration-200 hover:opacity-90 disabled:opacity-50"
+            className="mt-2 nova-btn-primary text-white p-3 rounded-[30px] font-bold text-[15px] cursor-pointer disabled:opacity-50"
           >
             {enviando
               ? 'Procesando...'

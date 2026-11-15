@@ -1,7 +1,7 @@
 // src/utils/gameImages.ts
 
 const steamHeader = (appId: number) =>
-  `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`;
+  `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/library_hero.jpg`;
 
 const SLUG_IMAGE_MAP: Record<string, string> = {
   'cyberpunk-2077': '/images/imagenes-juegos/imagen_cyberpunk_2077.webp',
@@ -17,6 +17,27 @@ const SLUG_IMAGE_MAP: Record<string, string> = {
   'apex-legends': steamHeader(1172470),
 };
 
+const TRAILER_ID_MAP: Record<string, string> = {
+  'cyberpunk-2077': 'UnA7tepsc7s',
+  'minecraft': 'XWb_G-yKkYA',
+  'the-witcher-3-wild-hunt': 'hBoCRYX6Vq0',
+  'elden-ring': 'K_03kFqWfqs',
+  'baldurs-gate-3': '1_hXhnzUaVE',
+  'portal-2': 'tax4e4hBBZc',
+  'dark-souls-iii': 'QjY99zF3_to',
+  'grand-theft-auto-v': 'hvoD7ehZPcM',
+  'resident-evil-4-remake': 'jZ_zrFJdCIA',
+  'apex-legends': 'vvB2wiDUDdA',
+};
+
+function normalizeSlug(texto: string): string {
+  return texto
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 /**
  * Resolves a cover image URL for a game using its slug (or title fallback)
  * when the backend `juegos` row has `imagenUrl` set to null.
@@ -27,18 +48,30 @@ export function getGameImageUrl(slug?: string, titulo?: string): string | undefi
   }
 
   if (titulo) {
-    const normalizedSlug = titulo
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-
+    const normalizedSlug = normalizeSlug(titulo);
     if (SLUG_IMAGE_MAP[normalizedSlug]) {
       return SLUG_IMAGE_MAP[normalizedSlug];
     }
   }
 
   return undefined;
+}
+
+/**
+ * Resolves an embeddable YouTube trailer URL for a game by title/slug.
+ */
+export function getGameTrailerUrl(titulo?: string, slug?: string): string | undefined {
+  const key = slug && TRAILER_ID_MAP[slug]
+    ? slug
+    : titulo
+      ? normalizeSlug(titulo)
+      : undefined;
+
+  if (!key || !TRAILER_ID_MAP[key]) {
+    return undefined;
+  }
+
+  return `https://www.youtube.com/embed/${TRAILER_ID_MAP[key]}?rel=0`;
 }
 
 /**

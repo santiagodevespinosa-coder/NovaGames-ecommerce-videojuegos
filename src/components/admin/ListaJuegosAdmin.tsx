@@ -15,11 +15,11 @@ export function ListaJuegosAdmin({ juegos }: ListaJuegosAdminProps) {
         {juegos.map((j) => (
           <div
             key={j.id}
-            className="flex justify-between items-center py-3 px-4 bg-bg-principal rounded-lg border border-borde"
+            className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1.5 py-3 px-4 bg-bg-principal rounded-lg border border-borde"
           >
-            <div>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <strong className="text-texto-principal">{j.titulo}</strong>
-              <span className="text-texto-secundario text-[13px] ml-3">
+              <span className="text-texto-secundario text-[13px]">
                 Stock: {j.stock} | ${j.precio}
               </span>
             </div>
